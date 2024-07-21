@@ -1,0 +1,3561 @@
+#LyX 2.2 created this file. For more info see http://www.lyx.org/
+\lyxformat 508
+\begin_document
+\begin_header
+\save_transient_properties true
+\origin unavailable
+\textclass article
+\begin_preamble
+\usepackage{indentfirst}
+\usepackage{caption}
+\captionsetup[figure]{font=footnotesize}
+\end_preamble
+\use_default_options true
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman "default" "default"
+\font_sans "default" "default"
+\font_typewriter "default" "default"
+\font_math "auto" "auto"
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100 100
+\font_tt_scale 100 100
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry true
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine basic
+\cite_engine_type default
+\biblio_style plain
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\justification true
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\leftmargin 2.54cm
+\topmargin 2.54cm
+\rightmargin 2.54cm
+\bottommargin 2.54cm
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 2
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+twocolumn[
+\end_layout
+
+\begin_layout Plain Layout
+
+  
+\backslash
+begin{@twocolumnfalse} 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Author
+Nicholas Cemenenkoff
+\end_layout
+
+\begin_layout Title
+The 
+\begin_inset Formula $N$
+\end_inset
+
+-Body Problem
+\end_layout
+
+\begin_layout Abstract
+We construct a 3D model that simulates 
+\begin_inset Formula $N$
+\end_inset
+
+ gravitationally interacting point masses.
+ The model travels through time via several different numerical integration
+ methods ranging from very basic to state of the art techniques.
+ To clarify, at each time step, each body 
+\begin_inset Formula $m_{i}$
+\end_inset
+
+ calculates the forces it feels from the other 
+\begin_inset Formula $N-1$
+\end_inset
+
+ bodies in mutual orbit, so the computational demand of this problem is
+ on the order of 
+\begin_inset Formula $n^{2}$
+\end_inset
+
+.
+ Because no analytical solution exists for this problem, we calibrate our
+ model to represent systems very close to our solar system, but with initial
+ conditions chosen to produce non-coplanar orbits.
+ The results explored in this paper are mysterious and beautiful, and the
+ orbital trajectories can take on many twisting paths with far greater variety
+ than simply circles, ellipses, or hyperbolas.
+ For systems with only four or five bodies but with one central body with
+ a large mass, the orbits (especially when calculated with leapfrog integration
+ methods) are extremely stable and retrace the same trajectories over and
+ over again.
+ For systems with nine or ten bodies, the orbits seem relatively stable,
+ but if propagated far enough through time, show a smearing effect representativ
+e of the changing center of mass of the system or perhaps entrance into
+ a chaotic regime.
+ Because the 
+\begin_inset Formula $N$
+\end_inset
+
+-body problem is quite computationally expensive, to ensure reasonable computati
+on times, 
+\begin_inset Formula $N=10$
+\end_inset
+
+ is the maximum number of bodies explored, but if given the appropriate
+ amount of initial conditions, the code can truly accommodate 
+\begin_inset Formula $N$
+\end_inset
+
+ bodies.
+\end_layout
+
+\begin_layout Abstract
+\SpecialChar ligaturebreak
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{@twocolumnfalse} ]
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset VSpace smallskip
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Problem Statement
+\end_layout
+
+\begin_layout Standard
+Imagine a vast empty three-dimensional space.
+ Initialize some point masses of varying size at different locations and
+ with certain initial velocities.
+ Accounting only for the gravitational force between the bodies (and not
+ allowing for collisions), what sort of orbital trajectories will result?
+ This problem is classically known as the 
+\begin_inset Formula $N$
+\end_inset
+
+-body problem, and was first seriously studied by Sir Isaac Newton.
+ In this paper, we implement a numerical solution to the problem and explore
+ the following questions:
+\end_layout
+
+\begin_layout Itemize
+What are the core characteristics of the 
+\begin_inset Formula $N$
+\end_inset
+
+-body problem?
+\end_layout
+
+\begin_layout Itemize
+As the number of bodies increases, does orbital stability seem more or less
+ likely?
+\end_layout
+
+\begin_layout Itemize
+Which factors seem to play a critical role in establishing stable orbits?
+\end_layout
+
+\begin_layout Itemize
+How can the accuracy of the simulation be checked?
+\end_layout
+
+\begin_layout Itemize
+Which numerical stepping methods produce the most accurate orbital trajectories?
+\end_layout
+
+\begin_layout Itemize
+Which stepping methods are the fastest, which methods are the slowest, which
+ are symplectic, and which conserve energy, and how can this be confirmed?
+\end_layout
+
+\begin_layout Standard
+We attempt to address all of these questions in the analysis that follows.
+\end_layout
+
+\begin_layout Section
+Numerical Solution
+\end_layout
+
+\begin_layout Standard
+At its core, the numerical solution to this problem involves solving for
+ the instantaneous accelerations for a given a set of position data.
+ The accelerations on body 
+\begin_inset Formula $m_{i}$
+\end_inset
+
+ felt by all other masses for a given set of positions is given by
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+\boldsymbol{a}_{ij}=\sum_{\stackrel{j=1}{j\neq i}}^{n}\frac{Gm_{j}\left(\boldsymbol{r}_{j}-\boldsymbol{r}_{i}\right)}{\left\Vert \boldsymbol{r}_{j}-\boldsymbol{r}_{i}\right\Vert ^{3}}.
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+There are several stepper methods that calculate the instantaneous accelerations
+ 
+\begin_inset Formula $\boldsymbol{a}_{ij}$
+\end_inset
+
+ for every body, but they do so in different ways.
+ The employed methods are:
+\end_layout
+
+\begin_layout Enumerate
+Euler,
+\end_layout
+
+\begin_layout Enumerate
+Euler-Cromer (EC),
+\end_layout
+
+\begin_layout Enumerate
+2nd Order Runge-Kutta (RK2),
+\end_layout
+
+\begin_layout Enumerate
+4th Order Runge-Kutta (RK4),
+\end_layout
+
+\begin_layout Enumerate
+Velocity Verlet (VV),
+\end_layout
+
+\begin_layout Enumerate
+Position Verlet (PV),
+\end_layout
+
+\begin_layout Enumerate
+Velocity Extended Forest-Ruth-like (VEFRL), and
+\end_layout
+
+\begin_layout Enumerate
+Position Extended Forest-Ruth-like (PEFRL).
+\end_layout
+
+\begin_layout Standard
+The Euler method is the only method on the list that does not conserve energy.
+ Its non-energy-conserving nature can be seen in Figure 1.
+ The orbital trajectories for four orbiting bodies spiral inward with this
+ method type, but are repeating ellipses for all other methods.
+ As expected, the most advanced methods (RK4, VEFRL, and PEFRL) are the
+ slowest algorithms.
+ We've found these methods can often be up to 10 times as slow as the Euler
+ method for varying initial conditions and 
+\begin_inset Formula $2\leq N\leq10$
+\end_inset
+
+.
+ To see which method is most likely the most robust for large 
+\begin_inset Formula $N$
+\end_inset
+
+, the methods were timed for the average number of iterations per second
+ given 
+\begin_inset Formula $N=10$
+\end_inset
+
+, 
+\begin_inset Formula $t_{f}=20\,\mathrm{years}$
+\end_inset
+
+, and 
+\begin_inset Formula $dt=2\,\mathrm{hours}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\align center
+\begin_inset Tabular
+<lyxtabular version="3" rows="9" columns="2">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+method
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+iterations/second
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+Euler
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1440.19
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+EC
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1454.08
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+RK2
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+728.48
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+RK4
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+365.23
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+VV
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+728.95
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\color blue
+PV
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+
+\color blue
+1451.20
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+VEFRL
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+293.02
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+PEFRL
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" leftline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+365.26
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Given these data, we conclude that PV is the best algorithm for exploring
+ large systems because it is symplectic, energy-conserving, and also nearly
+ just as fast as the Euler or Euler-Cromer methods.
+ Interestingly, leapfrogging methods that propagate the 
+\emph on
+position
+\emph default
+ first rather than the velocity are faster.
+ This may have to do with the fact that calculating velocity values requires
+ an extra 
+\begin_inset Formula $\boldsymbol{a}_{ij}$
+\end_inset
+
+ function call, thus slowing down the iteration considerably.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename N4_tf20yr_dt2hr_mf1/IC1/euler/fig1.png
+	width 49text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Orbital trajectories for IC1 produced via the Euler stepping method.
+ Notice how the bodies spiral inward because energy is not conserved.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename N4_tf20yr_dt2hr_mf1/IC1/rk4/fig1.png
+	width 49text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Orbital trajectories for IC1 calculated with the Euler-Cromer method.
+ Note that all other methods produces results nearly identical to EC for
+ IC1 at 
+\begin_inset Formula $N=4$
+\end_inset
+
+.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The Verlet and Extended Forest-Ruth-like methods not only conserve energy,
+ but are also symplectic (geometry preserving).
+ Interestingly, with 
+\begin_inset Formula $N=4$
+\end_inset
+
+, all of these methods produce generally similar results for initial conditions
+ that are somewhat close to our own solar system (stable ellipses), but
+ wild, twisty, 
+\emph on
+differing
+\emph default
+ results for more chaotic initial conditions (still with 
+\begin_inset Formula $N=4$
+\end_inset
+
+).
+ We spare the reader the details of each specific algorithmic implementation,
+ but note importantly that they all functionally serve the same purpose
+ as to produce 
+\begin_inset Formula $\boldsymbol{r}\left[i+1\right]$
+\end_inset
+
+ and 
+\begin_inset Formula $\boldsymbol{v}\left[i+1\right]$
+\end_inset
+
+ given 
+\begin_inset Formula $\boldsymbol{r}\left[i\right]$
+\end_inset
+
+, 
+\begin_inset Formula $\boldsymbol{v}\left[i\right]$
+\end_inset
+
+, a callable acceleration function based on 
+\begin_inset Formula $\boldsymbol{a}_{ij}$
+\end_inset
+
+, and a finite number of steps 
+\begin_inset Formula $n$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Once the 
+\begin_inset Formula $\boldsymbol{r}$
+\end_inset
+
+ and 
+\begin_inset Formula $\boldsymbol{v}$
+\end_inset
+
+ arrays are computed, potential energy data is derived from 
+\begin_inset Formula $\boldsymbol{r}$
+\end_inset
+
+, and 3D momentum and kinetic energy data are derived from 
+\begin_inset Formula $\boldsymbol{v}$
+\end_inset
+
+ and 
+\begin_inset Formula $v^{2}$
+\end_inset
+
+ respectively.
+ In the exploration that follows, 
+\begin_inset Formula $N=4$
+\end_inset
+
+ for two separate sets of initial conditions run from 
+\begin_inset Formula $t=0$
+\end_inset
+
+ to 
+\begin_inset Formula $t=100\,\mathrm{years}$
+\end_inset
+
+ with a time step of 
+\begin_inset Formula $dt=2\,\mathrm{hours}$
+\end_inset
+
+.
+ The first set of initial conditions (IC1) involves point masses with the
+ masses of the sun, Mercury, Venus, and Earth, and the other (IC2) involves
+ four bodies all close to the mass of the sun in what the author claims
+ could represent the emergence of two binary star systems.
+\end_layout
+
+\begin_layout Standard
+Lastly, one body in the system is chosen for purposes of exploring phase
+ space.
+ In our specific runs, phase space plots are generated for the Mercury-like
+ point mass for stable initial conditions, and then a sun-like point mass
+ of 
+\begin_inset Formula $2^{30}\,\mathrm{kg}$
+\end_inset
+
+ for the more chaotic second set of initial conditions.
+ IC1 and IC2 are available for viewing in the appendix.
+\end_layout
+
+\begin_layout Section
+Physical Analysis
+\end_layout
+
+\begin_layout Subsection
+Analysis of Four Bodies
+\end_layout
+
+\begin_layout Standard
+The primary way of analyzing the physical accuracy of this simulation is
+ via the energy of the system, and secondarily through phase space analysis.
+ Note importantly that for each plot in section 3.1, 
+\begin_inset Formula $t_{f}=20\ \mathrm{years}$
+\end_inset
+
+ and 
+\begin_inset Formula $dt=2\ \mathrm{hours}$
+\end_inset
+
+.
+ Kinetic energies for each body are calculated via the square of the velocity
+ at each time step in each direction via 
+\begin_inset Formula $\frac{1}{2}m_{i}\boldsymbol{v}_{i}^{2}$
+\end_inset
+
+.
+ The total system potential energy is calculated at each time step via 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula 
+\[
+U=-\sum_{1\leq i\leq j\leq n}\frac{Gm_{i}m_{j}}{\left\Vert \boldsymbol{r}_{j}-\boldsymbol{r}_{i}\right\Vert },
+\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+so if the bodies behave in a way such that the total system kinetic energy
+ 
+\begin_inset Formula $T$
+\end_inset
+
+ is maximized when 
+\begin_inset Formula $U$
+\end_inset
+
+ is minimized, and vice versa, the simulation is at least following the
+ physical law of conservation of energy, thus corroborating the numerical
+ calculation of 
+\emph on
+both
+\emph default
+ 
+\series bold
+
+\begin_inset Formula $\boldsymbol{r}$
+\end_inset
+
+ 
+\series default
+and 
+\begin_inset Formula $\boldsymbol{v}$
+\end_inset
+
+.
+ As shown in the Figures 3-7, 
+\begin_inset Formula $U$
+\end_inset
+
+ and 
+\begin_inset Formula $T$
+\end_inset
+
+ always seem to cancel out 
+\begin_inset Quotes eld
+\end_inset
+
+by eye
+\begin_inset Quotes erd
+\end_inset
+
+ to a common constant, so we can have confidence in the model.
+ For IC1, the height and depth of energy peaks seem to be the same across
+ stepping methods.
+ For the more chaotic IC2, however, there is variability in the peak and
+ depth height on the total energy plot.
+ We can currently only speculate as to what governs the peak density in
+ the total energy plot, but note via Figures 6 and 7 that there are more
+ energy peaks for stepping methods considered scientifically more robust.
+ Note additionally in Figure 8 that each body's kinetic energy has a periodic
+ nature.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename N4_tf20yr_dt2hr_mf1/IC1/euler/fig12.png
+	width 49text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+IC1 Euler-calculated total kinetic and potential system energies over time
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename N4_tf20yr_dt2hr_mf1/IC1/vv/fig12.png
+	width 49text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+IC1 VV-calculated total kinetic and potential system energies over time
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename N4_tf20yr_dt2hr_mf1/IC2/euler/fig12.png
+	width 49text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+IC2 Euler-calculated total kinetic and potential system energies over time
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename N4_tf20yr_dt2hr_mf1/IC2/vv/fig12.png
+	width 49text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+IC2-calculated total kinetic and potential system energies over time
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename N4_tf20yr_dt2hr_mf1/IC2/pefrl/fig12.png
+	width 49text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+IC2 PEFRL-calculated total kinetic and potential system energies over time.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename N4_tf20yr_dt2hr_mf1/IC1/pefrl/fig11.png
+	width 49text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+IC1 PEFRL-calculated kinetic energies for each body
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Next, we employ PV and explore phase space for IC1.
+ Notice next (via the phase space figures) that in both the momentum and
+ kinetic energy spaces, 
+\begin_inset Formula $m_{1}$
+\end_inset
+
+ follows a cyclic trajectory repeatedly, indicating momentum and kinetic
+ energy (in addition to total energy) are conserved.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename N4_tf20yr_dt2hr_mf1/IC1/pv/fig6.png
+	width 49text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+IC1 PV-calculated momentum phase space for 
+\begin_inset Formula $m_{1}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename N4_tf20yr_dt2hr_mf1/IC1/pv/fig9.png
+	width 49text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+IC1 PV-calculated kinetic energy phase space for 
+\begin_inset Formula $m_{1}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Since IC2 is far more chaotic than IC1 and doesn't seem to have a stable,
+ repeated trajectory, we employ the state-of-the-art PEFRL algorithm when
+ exploring phase space for 
+\begin_inset Formula $m_{1}$
+\end_inset
+
+.
+ Note in the Figures 11 and 12 that there is still a cyclic nature in the
+ plots, but the cycle tends to drift, indicating that energy and momentum
+ are conserved as 
+\begin_inset Formula $m_{1}$
+\end_inset
+
+ translates through space.
+ If we could somehow put ourselves in the frame of 
+\begin_inset Formula $m_{1}$
+\end_inset
+
+, the associated phase space plots would be similar to those for 
+\begin_inset Formula $m_{1}$
+\end_inset
+
+ in IC1 and continually retrace themselves.
+ All of these observations taken together heavily corroborate the physical
+ accuracy of our numerical implementation: both energy and momentum are
+ conserved.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename N4_tf20yr_dt2hr_mf1/IC2/pefrl/fig6.png
+	width 49text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+IC2 PEFRL-calculated momentum phase space for 
+\begin_inset Formula $m_{1}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename N4_tf20yr_dt2hr_mf1/IC2/pefrl/fig9.png
+	width 49text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+IC2 PEFRL-calculated kinetic energy phase space for 
+\begin_inset Formula $m_{1}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Although all stepping methods except Euler agree on the trajectories for
+ IC1, the choice of stepping algorithm for IC2 can produce drastically different
+ results.
+ Figures 13-20 show how lower order stepping methods give solutions wildly
+ different from higher order ones in the case of 
+\begin_inset Formula $t_{f}=20\ \mathrm{years}$
+\end_inset
+
+ with 
+\begin_inset Formula $dt=2\ \mathrm{hours}$
+\end_inset
+
+ but generally, it seems the higher order methods (PEFRL, VERFL, and RK4)
+ all map trajectories with the same overall qualitative nature.
+ Given that PEFRL, VEFRL, and RK4 are all of the same order, since PEFRL
+ generally has the best iterations per second ratio and is also symplectic
+ and energy conserving, it is the best algorithm in our current model to
+ explore trajectories in higher resolution.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename N4_tf20yr_dt2hr_mf1/IC2/euler/fig1.png
+	width 49text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+IC2 Euler-calculated orbital trajectories
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename N4_tf20yr_dt2hr_mf1/IC2/ec/fig1.png
+	width 49text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+IC2 EC-calculated orbital trajectories
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename N4_tf20yr_dt2hr_mf1/IC2/rk2/fig1.png
+	width 49text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+IC2 RK2-calculated orbital trajectories
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename N4_tf20yr_dt2hr_mf1/IC2/rk4/fig1.png
+	width 49text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+IC2 RK4-calculated orbital trajectories
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename N4_tf20yr_dt2hr_mf1/IC2/vv/fig1.png
+	width 49text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+IC2 VV-calculated orbital trajectories
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename N4_tf20yr_dt2hr_mf1/IC2/pv/fig1.png
+	width 49text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+IC2 PV-calculated orbital trajectories
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename N4_tf20yr_dt2hr_mf1/IC2/vefrl/fig1.png
+	width 49text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+IC2 VEFRL-calculated orbital trajectories
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename N4_tf20yr_dt2hr_mf1/IC2/pefrl/fig1.png
+	width 49text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+IC2 PEFRL-calculated orbital trajectories
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Ten Bodies
+\end_layout
+
+\begin_layout Standard
+Here we start to show the powerful general nature of the simulation, and
+ also peculiar properties that are characteristic of its 3D nature.
+ In Figures 21 and 22, we show a system of 
+\begin_inset Formula $N=10$
+\end_inset
+
+ bodies from the stable IC1 set, and investigate the orbital trajectories
+ when allowed to propagate forward through time for 
+\begin_inset Formula $t_{f}=20\,\mathrm{years}$
+\end_inset
+
+ versus 
+\begin_inset Formula $t_{f}=500\,\mathrm{years}$
+\end_inset
+
+, each with 
+\begin_inset Formula $dt=2\,\mathrm{hours}$
+\end_inset
+
+ via the PV algorithm (symplectic and energy-conserving).
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename N10_tf20yr_dt2hr_mf1/pv/fig1.png
+	width 49text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+IC1 (
+\begin_inset Formula $N=10,\ t_{f}=20\,\mathrm{years}$
+\end_inset
+
+) PV-calculated orbital trajectories for 
+\begin_inset Formula $t_{f}=20\,\mathrm{years}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename N10_tf500yr_dt2hr_mf1/pv/fig1-drift.png
+	width 49text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+IC1 (
+\begin_inset Formula $N=10,\ t_{f}=500\,\mathrm{years}$
+\end_inset
+
+) PV-calculated orbital trajectories
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Despite the symplectic nature of the PV stepper, the system still seems
+ to 
+\begin_inset Quotes eld
+\end_inset
+
+drift
+\begin_inset Quotes erd
+\end_inset
+
+ or 
+\begin_inset Quotes eld
+\end_inset
+
+smear
+\begin_inset Quotes erd
+\end_inset
+
+ over time.
+ Perhaps if given a long enough of a period, this drifting would also be
+ periodic, but it might take a few days or even weeks of continuous run
+ time to confirm such a result.
+ For IC1 simulations with 
+\begin_inset Formula $N=3$
+\end_inset
+
+ or 
+\begin_inset Formula $N=4$
+\end_inset
+
+, this smearing effect isn't apparent.
+ The author believes this smearing effect has to due with some sort of instabili
+ty that is introduced when the number of bodies starts to get large.
+ Note also that this smearing effect is exhibited in phase space plots for
+ 
+\begin_inset Formula $m_{1}$
+\end_inset
+
+.
+ Each cycle seems to contain the same amount of area, so a possible explanation
+ is that energy is indeed conserved, but the entire system's center of mass
+ is following what may or may not be a periodic trajectory.
+ Either way, at least artistically, the orbital trajectory plots are vaguely
+ reminiscent of some sort of ringed planet like Saturn.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename N10_tf500yr_dt2hr_mf1/pv/fig7.png
+	width 49text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+IC1 (
+\begin_inset Formula $N=10,\ t_{f}=500\,\mathrm{years}$
+\end_inset
+
+) PV-calculated momentum phase space for 
+\begin_inset Formula $m_{1}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename N10_tf500yr_dt2hr_mf1/pv/fig10.png
+	width 49text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+IC1 (
+\begin_inset Formula $N=10,\ t_{f}=500\,\mathrm{years}$
+\end_inset
+
+) PV-calculated kinetic energy space for 
+\begin_inset Formula $m_{1}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Error Analysis
+\end_layout
+
+\begin_layout Standard
+Analysis of error is difficult for the simulation as no analytical solution
+ exists for this problem.
+ Additionally, initial conditions that produce stable (but nontrivial) 3D
+ trajectories are difficult to come upon by guessing and checking, and they
+ are even more difficult to cross-check with other simulations.
+ At first it was thought to compare results with the industry standard Python
+ 
+\begin_inset Formula $N$
+\end_inset
+
+-body simulator known as Rebound, but the package is limited to 
+\begin_inset Formula $2D$
+\end_inset
+
+ orbits, thus providing an ineffective comparison.
+ Instead, we are able to show that as the time step 
+\begin_inset Formula $dt$
+\end_inset
+
+ is reduced and the number of steps taken by the system increased, the bodies
+ converge to a single physical system trajectory.
+ We use the more chaotic IC2 for our investigation and the PEFRL stepping
+ method.
+ Starting with only 
+\begin_inset Formula $11700$
+\end_inset
+
+ steps 
+\begin_inset Formula $\left(dt=15\,\mathrm{hours}\right)$
+\end_inset
+
+ as in Figure 25 yields trajectories that just shoot outward from the center
+ with minimal orbiting, but with 
+\begin_inset Formula $175000$
+\end_inset
+
+ steps 
+\begin_inset Formula $\left(dt=2\,\mathrm{hours}\right)$
+\end_inset
+
+ the results look far more intuitively realistic (see Figure 28).
+ We can also see that at lower time steps, the difference between overall
+ results gets increasingly smaller.
+ This qualitatively shows that the numerical solution converges to a single
+ solution as the time step is reduced.
+ Note that for stable orbital trajectories as in IC1, a time step of 
+\begin_inset Formula $dt=15\,\mathrm{hours}$
+\end_inset
+
+ produces essentially the same orbital paths as 
+\begin_inset Formula $dt=1\,\mathrm{hour}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename timestep_reduction/fig1_15h.png
+	width 49text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+IC2 PEFRL-calculated trajectories with 
+\begin_inset Formula $dt=15\,\mathrm{hours}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename timestep_reduction/fig1_7h.png
+	width 49text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+IC2 PEFRL-calculated trajectories with 
+\begin_inset Formula $dt=7\,\mathrm{hours}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename timestep_reduction/fig1_4h.png
+	width 49text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+IC2 PEFRL-calculated trajectories with 
+\begin_inset Formula $dt=4\,\mathrm{hours}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename timestep_reduction/fig1_2h.png
+	width 49text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+IC2 PEFRL-calculated trajectories with 
+\begin_inset Formula $dt=2\,\mathrm{hours}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename timestep_reduction/fig1_1h.png
+	width 49text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+IC2 PEFRL-calculated trajectories with 
+\begin_inset Formula $dt=1\,\mathrm{hour}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Additionally, there is further proof that there is insignificantly small
+ error in the simulation in that the system behaves exactly as expected
+ for unnatural, but mathematically symmetrical initial conditions.
+ If two bodies are initialized in 3D space within the simulation (at distinct
+ positions) and given zero initial velocity, they only oscillate back and
+ forth on the line connecting the two bodies.
+ In a separate test where there is a large massive object at the origin
+ and six smaller objects symmetrically positioned around it at 
+\begin_inset Formula $\left(0,0,\pm1\right),\,\left(0,\pm1,0\right),\,\mathrm{and}\,\left(0,0,\pm1\right)$
+\end_inset
+
+, and every massive body starts with zero initial velocity, the system again
+ oscillates back and forth in a predictable manner: the massive body stays
+ still while the smaller bodies oscillate back and forth along the coordinate
+ axes.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename back_and_forth_test/back_and_forth_1.png
+	width 49text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Two bodies with unequal masses initialized at distinct positions with zero
+ initial velocities only travel along the line that connects them.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename back_and_forth_test/back_and_forth_2.png
+	width 49text%
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+There is a central body with the mass of the sun, and then six symmetrically
+ arranged bodies with the mass of Mercury.
+ All bodies are given zero initial velocities.
+ As might be expected, because the perfect symmetry of the initial conditions,
+ the resulting orbital trajectories are also perfectly symmetrical.
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Conclusions
+\end_layout
+
+\begin_layout Standard
+Concluding, this numerical implementation accurately provides a means of
+ investigating the centuries-old 
+\begin_inset Formula $N$
+\end_inset
+
+-body problem in three dimensions.
+ Although initial conditions for stable systems are difficult to discover,
+ we are able to create nearly stable orbits by using values close to those
+ that we find in our solar system.
+ In the same sense, having one mass in the set of massive bodies a few orders
+ of magnitude larger that the rest seems to provide stability to the system.
+ Unstable systems are easier to produce, and are found especially when the
+ bodies in the simulation are all close to the same mass.
+ For stable systems, all stepping implementations tend to agree on the numerical
+ results, with only the Euler method producing clearly erroneous results
+ due to the fact that it does not conserve energy.
+ For unstable systems, the stepping methods predict significantly different
+ system behavior, but it is noted that the most advanced ones (RK4, VEFRL,
+ and PEFRL) all qualitatively produce the same orbital trajectories, albeit
+ with slight variations.
+ Given the investigation into both the speed and accuracy of each numerical
+ integration method, PV is found to be the most appropriate exploratory
+ method, with PEFRL providing the most appropriate means for investigating
+ systems in higher resolution.
+ This simulation is powerful in that it truly may accommodate 
+\begin_inset Formula $N$
+\end_inset
+
+ bodies if given the appropriate amount of initial conditions, thus it lays
+ a foundation for further 
+\begin_inset Formula $N$
+\end_inset
+
+-body simulation research that might entail automated generation of initial
+ conditions, or perhaps importing initial conditions from modern stellar
+ surveys.
+ Who knows what mysterious patterns you may find?
+\end_layout
+
+\begin_layout Section
+Appendix
+\end_layout
+
+\begin_layout Standard
+For the two tables that follow, masses are in kilograms, all position data
+ is multiplied by 
+\begin_inset Formula $10^{11}\mathrm{\,m}$
+\end_inset
+
+, and all velocity data is multiplied by 
+\begin_inset Formula $10^{3}\,\mathrm{\frac{m}{s}}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float table
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Initial Conditions Set 1 (IC1)
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\noindent
+\align center
+\begin_inset Tabular
+<lyxtabular version="3" rows="11" columns="8">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+body #
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+mass
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $x$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $y$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $z$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $v_{x}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $v_{y}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $v_{z}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $1.989\times10^{30}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1.0
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+3.0
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2.0
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.0
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.0
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.0
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $3.285\times10^{23}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+6.0
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+-5.0
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+4.0
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+7.0
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.5
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2.0
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+3
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $4.867\times10^{24}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+7.0
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+8.0
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+-7.0
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+-4.0
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+-0.5
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+-3.0
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+4
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $5.972\times10^{24}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+8.0
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+6.0
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+-2.0
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+7.0
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.5
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2.0
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+5
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $6.417\times10^{23}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+8.8
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+9.8
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+-6.8
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+4.8
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1.3
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+4.8
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+6
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $1.898\times10^{27}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+9.8
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+3.8
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+-7.8
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1.8
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1.2
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+-5.8
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+7
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $5.683\times10^{26}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+-3.8
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1.8
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+4.8
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2.8
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+11.3
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1.4
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+8
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $8.681\times10^{25}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+7.8
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+-2.2
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1.8
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+3.8
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+10.3
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2.4
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+9
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $1.024\times10^{26}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+6.8
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+-4.1
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+3.8
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+4.8
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+9.3
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+-1.4
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+10
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $1.309\times10^{22}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+5.8
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+-9.3
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+5.8
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+5.8
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.3
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+-2.4
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float table
+placement H
+wide false
+sideways false
+status collapsed
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Initial Conditions Set 2 (IC2)
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\noindent
+\align center
+\begin_inset Tabular
+<lyxtabular version="3" rows="5" columns="8">
+<features tabularvalignment="middle">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<column alignment="center" valignment="top">
+<row>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+body #
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+mass
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $x$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $y$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $z$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $v_{x}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $v_{y}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" bottomline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $v_{z}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $1\times10^{30}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+1.0
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+3.0
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2.0
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+-2.0
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.5
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+5.0
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $2\times10^{30}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+6.0
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+-5.0
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+4.0
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+7.0
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.5
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2.0
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+3
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $3\times10^{30}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+7.0
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+8.0
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+-7.0
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+-4.0
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+-0.5
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+-3.0
+\end_layout
+
+\end_inset
+</cell>
+</row>
+<row>
+<cell alignment="center" valignment="top" rightline="true" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+4
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+\begin_inset Formula $2.5\times10^{30}$
+\end_inset
+
+
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+8.0
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+6.0
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+-2.0
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+7.0
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+0.5
+\end_layout
+
+\end_inset
+</cell>
+<cell alignment="center" valignment="top" usebox="none">
+\begin_inset Text
+
+\begin_layout Plain Layout
+2.0
+\end_layout
+
+\end_inset
+</cell>
+</row>
+</lyxtabular>
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_body
+\end_document
