@@ -10,10 +10,6 @@ def load_config(config_path: Union[str, Path]) -> Dict[str, Any]:
     with open(config_path, "r") as infile:
         return yaml.safe_load(infile)
 
-def gen_vars(config: Dict[str, Any]):
-    for k, v in config.items():
-        globals()[k] = v
-
 def accel(m: List, r: np.ndarray, G: float = 6.67e-11) -> np.ndarray:
     """_summary_
 
@@ -68,6 +64,7 @@ def main(config_path: str):
     colors = config["colors"]
     figs = config["figs"]
     accel(m, r0, G)
+    print(1)
 
 if __name__ == "__main__":
     main()
