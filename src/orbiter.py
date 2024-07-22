@@ -159,33 +159,33 @@ class Orbiter:
             # The simplest method is the Euler method. It does not conserve energy.
             if self.method == "euler":
                 r[i + 1] = r[i] + self.dt * v[i]
-                v[i + 1] = v[i] + self.dt * self.get_accel(self.m, r[i])
+                v[i + 1] = v[i] + self.dt * self.get_accel(r[i])
             # The Euler-Cromer method drives our next-simplest stepper.
             if self.method == "ec":
                 r[i + 1] = r[i] + self.dt * v[i]
-                v[i + 1] = v[i] + self.dt * self.get_accel(self.m, r[i + 1])
+                v[i + 1] = v[i] + self.dt * self.get_accel(r[i + 1])
             # Getting slightly fancier, we employ the 2nd Order Runge-Kutta method.
             if self.method == "rk2":
-                v_iphalf = v[i] + self.get_accel(self.m, r[i]) * (
+                v_iphalf = v[i] + self.get_accel(r[i]) * (
                     self.dt / 2
                 )  # Think like v[i + 0.5].
                 r_iphalf = r[i] + v[i] * (self.dt / 2)
-                v[i + 1] = v[i] + self.get_accel(self.m, r_iphalf) * self.dt
+                v[i + 1] = v[i] + self.get_accel(r_iphalf) * self.dt
                 r[i + 1] = r[i] + v_iphalf * self.dt
             # Even fancier, here's the 4th Order Runge-Kutta method.
             if self.method == "rk4":
                 r1 = r[i]
                 v1 = v[i]
-                a1 = self.get_accel(self.m, r1)
+                a1 = self.get_accel(r1)
                 r2 = r1 + (self.dt / 2) * v1
                 v2 = v1 + (self.dt / 2) * a1
-                a2 = self.get_accel(self.m, r2)
+                a2 = self.get_accel(r2)
                 r3 = r1 + (self.dt / 2) * v2
                 v3 = v1 + (self.dt / 2) * a2
-                a3 = self.get_accel(self.m, r3)
+                a3 = self.get_accel(r3)
                 r4 = r1 + self.dt * v3
                 v4 = v1 + self.dt * a3
-                a4 = self.get_accel(self.m, r4)
+                a4 = self.get_accel(r4)
                 r[i + 1] = r[i] + (self.dt / 6) * (v1 + 2 * v2 + 2 * v3 + v4)
                 v[i + 1] = v[i] + (self.dt / 6) * (a1 + 2 * a2 + 2 * a3 + a4)
             # Velocity Verlet implementation. See: https://tinyurl.com/bdffjnh9
@@ -230,16 +230,15 @@ class Orbiter:
         self._v = v
         return r, v
 
-    def get_pot_energy_sys(self, r: np.ndarray) -> float:
+    def get_potential_quantities(self) -> float:
         """Get the total potential energy for n orbiting bodies given their positions.
+
+        Note that `get_orbits` must be called at least once before this method is
+        called so that `r` is appropriately calculated (and is not None).
 
         The nested for loop iterates over pairs of bodies only once by ensuring that
         i < j, thus preventing double-counting of pairwise interactions and ensuring
         that each pair is considered only once.
-
-        Args:
-            r (np.ndarray): A `num_steps`xNx3 array where each row is a body's position
-                (x, y, z).
 
         Returns:
             float: Total gravitational potential energy of the system (float).
@@ -247,33 +246,33 @@ class Orbiter:
         u_sys = 0
         for j in range(self.N):
             for i in range(j):
-                u_sys += -G * self.m[i] * self.m[j] / LA.norm(r[i] - r[j])
+                u_sys += -G * self.m[i] * self.m[j] / LA.norm(self.r[i] - self.r[j])
         self._u_sys = u_sys
         return u_sys
 
     def get_kinetic_quantities(
-        self, v: np.ndarray
+        self,
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         """Get an orbiting system's kinetic energy and momentum from body velocities.
 
-        Args:
-            v (np.ndarray): A `num_steps`xNx3 array where each row is a body's velocity
-                (vx, vy, vz).
+        Note that `get_orbits` must be called at least once before this method is
+        called so that `v` is appropriately calculated (and is not None).
 
         Returns:
-            Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]: The 3D kinetic energy of the system (over time)
+            Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]: The 3D kinetic
+                energy of the system (over time)
         """
         self.N = len(self.m)
         ke = np.zeros((self.num_steps, self.N, 3))  # 3D kinetic energy for each body.
         p = np.zeros((self.num_steps, self.N, 3))  # 3D momentum for each body.
         ke_tot = np.zeros((self.num_steps, self.N, 1))  # Tot kinetic energy, each body.
         ke_tot_sys = np.zeros((self.num_steps, 1))  # Total kinetic energy, system-wide.
-        v2 = v**2  # Squared velocities.
+        v2 = self.v**2  # Squared velocities.
         for i in tqdm(range(self.num_steps)):
             for j in range(self.N):
                 ke[i, j, :] = (self.m[j] / 2) * v2[i, j, :]
                 ke_tot[i, j, 0] = sum(ke[i, j, :])
-                p[i, j, :] = self.m[j] * v[i, j, :]
+                p[i, j, :] = self.m[j] * self.v[i, j, :]
             ke_tot_sys[i] = sum(ke_tot[i])
         self._ke = ke
         self._p = p
