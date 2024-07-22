@@ -30,9 +30,21 @@ class Orbiter:
         name (str): Alias for `ic`.
         m (np.ndarray): A 1D array of the masses of the bodies under consideration.
         r0 (np.ndarray): An Nx3 array where each row is a body's initial position
-            (x0, y0, z0)
+            (x0, y0, z0).
         v0 (np.ndarray): An Nx3 array where each row is a body's initial velocity
-            (v0, v0, v0)
+            (v0, v0, v0).
+        runfolder (str): __description__.
+        outfolder (Path): __description__.
+        _a (np.ndarray): __description__.
+        _r (np.ndarray): __description__.
+        _v (np.ndarray): __description__.
+        _p (np.ndarray): __description__.
+        _pe (np.ndarray): __description__.
+        _pe_tot (np.ndarray): __description__.
+        _pe_sys (np.ndarray): __description__.
+        _ke (np.ndarray): __description__.
+        _ke_tot (np.ndarray): __description__.
+        _ke_sys (np.ndarray): __description__.
     """
 
     def __init__(self, config: Dict[str, Any]) -> None:
@@ -43,6 +55,7 @@ class Orbiter:
         """
         self.colors = config["colors"]
         self.method = [k for k, v in config["method"].items() if v][0]
+        self.mf = config["mf"]
         self.N = config["N"]
         self.t0, self.tf, self.dt, self.num_steps = self.convert_times_get_steps(
             config["t0"], config["tf"], config["dt"]
@@ -64,11 +77,53 @@ class Orbiter:
         self._a = None
         self._r = None
         self._v = None
-        self._u_sys = None
-        self._ke = None
         self._p = None
+        self._pe = None
+        self._pe_tot = None
+        self._pe_sys = None
+        self._ke = None
         self._ke_tot = None
-        self._ke_tot_sys = None
+        self._ke_sys = None
+
+    @property
+    def a(self):
+        return self._a
+
+    @property
+    def r(self):
+        return self._r
+
+    @property
+    def v(self):
+        return self._v
+
+    @property
+    def p(self):
+        return self._p
+
+    @property
+    def pe(self):
+        return self._pe
+
+    @property
+    def pe_tot(self):
+        return self._pe_tot
+
+    @property
+    def pe_sys(self):
+        return self._pe_sys
+
+    @property
+    def ke(self):
+        return self._ke
+
+    @property
+    def ke_tot(self):
+        return self._ke_tot
+
+    @property
+    def ke_sys(self):
+        return self._ke_sys
 
     def convert_times_get_steps(
         self, t0: float, tf: float, dt: float
@@ -89,38 +144,6 @@ class Orbiter:
         num_steps = int(abs(tf - t0) / dt)  # Define the total number of time steps.
         # t = dt * np.array(range(num_steps))  # Ascending time values.
         return t0, tf, dt, num_steps
-
-    @property
-    def a(self):
-        return self._a
-
-    @property
-    def r(self):
-        return self._r
-
-    @property
-    def v(self):
-        return self._v
-
-    @property
-    def u_sys(self):
-        return self._u_sys
-
-    @property
-    def ke(self):
-        return self._ke
-
-    @property
-    def p(self):
-        return self._p
-
-    @property
-    def ke_tot(self):
-        return self._ke_tot
-
-    @property
-    def ke_tot_sys(self):
-        return self.ke_tot_sys
 
     def get_accel(self, r: np.ndarray) -> np.ndarray:
         """Get the acceleration of each body due to forces from all other bodies.
@@ -247,27 +270,46 @@ class Orbiter:
         self._v = v
         return r, v
 
-    def get_potential_quantities(self) -> float:
-        """Get the total potential energy for n orbiting bodies given their positions.
+    def get_potential_qtys(
+        self,
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+        """Get an orbiting system's potential energy from body positions.
 
         Note that `get_orbits` must be called at least once before this method is
         called so that `r` is appropriately calculated (and is not None).
 
-        The nested for loop iterates over pairs of bodies only once by ensuring that
-        i < j, thus preventing double-counting of pairwise interactions and ensuring
-        that each pair is considered only once.
+        This method updates the `pe`, `pe_tot`, and `pe_sys` attributes.
 
         Returns:
-            float: Total gravitational potential energy of the system (float).
+            Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+                - 3D potential energy `pe` (`num_steps`xNx3).
+                - 3D potential energy `pe_tot` for each body (`num_steps`xNx1).
+                - Total potential energy of the system `pe_sys` (`num_steps`x1).
         """
-        u_sys = 0
-        for j in range(self.N):
-            for i in range(j):
-                u_sys += -G * self.m[i] * self.m[j] / LA.norm(self.r[i] - self.r[j])
-        self._u_sys = u_sys
-        return u_sys
+        self.N = len(self.m)
+        pe = np.zeros((self.num_steps, self.N, 3))  # 3D potential energy for each body.
+        pe_tot = np.zeros((self.num_steps, self.N, 1))  # Tot. pot. energy, each body.
+        pe_sys = np.zeros((self.num_steps, 1))  # Total potential energy, system-wide.
+        for i in tqdm(range(self.num_steps)):
+            for j in range(self.N):
+                for k in range(j):
+                    r_diff = self.r[i, j, :] - self.r[i, k, :]
+                    r_mag = LA.norm(r_diff)
+                    # Avoid division by zero if r_mag is zero (which shouldn't happen
+                    # in a well-defined system).
+                    if r_mag > 0:
+                        potential = -G * self.m[j] * self.m[k] / r_mag
+                        pe[i, j, :] += potential * (
+                            r_diff / r_mag
+                        )  # Distribute potential along the vector
+                        pe_tot[i, j, 0] += potential
+            pe_sys[i] = sum(pe_tot[i].flatten())
+        self._pe = pe
+        self._pe_tot = pe_tot
+        self._pe_sys = pe_sys
+        return pe, pe_tot, pe_sys
 
-    def get_kinetic_quantities(
+    def get_kinetic_qtys(
         self,
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
         """Get an orbiting system's kinetic energy and momentum from body velocities.
@@ -275,50 +317,46 @@ class Orbiter:
         Note that `get_orbits` must be called at least once before this method is
         called so that `v` is appropriately calculated (and is not None).
 
-        This method updates the `ke`, `p`, `ke_tot`, and `ke_tot_sys` attributes.
+        This method updates the `ke`, `p`, `ke_tot`, and `ke_sys` attributes.
 
         Returns:
             Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-                - 3D kinetic energy `ke` (`num_steps`xNx3).
                 - 3D momentum `p` (`num_steps`xNx3).
+                - 3D kinetic energy `ke` (`num_steps`xNx3).
                 - Total kinetic energy of each body `ke_tot` (`num_steps`xNx1).
-                - Total kinetic energy of the system `ke_tot_sys` (`num_steps`x1).
+                - Total kinetic energy of the system `ke_sys` (`num_steps`x1).
         """
         self.N = len(self.m)
         ke = np.zeros((self.num_steps, self.N, 3))  # 3D kinetic energy for each body.
         p = np.zeros((self.num_steps, self.N, 3))  # 3D momentum for each body.
         ke_tot = np.zeros((self.num_steps, self.N, 1))  # Tot kinetic energy, each body.
-        ke_tot_sys = np.zeros((self.num_steps, 1))  # Total kinetic energy, system-wide.
+        ke_sys = np.zeros((self.num_steps, 1))  # Total kinetic energy, system-wide.
         v2 = self.v**2  # Squared velocities.
         for i in tqdm(range(self.num_steps)):
             for j in range(self.N):
+                p[i, j, :] = self.m[j] * self.v[i, j, :]
                 ke[i, j, :] = (self.m[j] / 2) * v2[i, j, :]
                 ke_tot[i, j, 0] = sum(ke[i, j, :])
-                p[i, j, :] = self.m[j] * self.v[i, j, :]
-            ke_tot_sys[i] = sum(ke_tot[i])
-        self._ke = ke
+            ke_sys[i] = sum(ke_tot[i])
         self._p = p
+        self._ke = ke
         self._ke_tot = ke_tot
-        self._ke_tot_sys = ke_tot_sys
-        return ke, p, ke_tot, ke_tot_sys
+        self._ke_sys = ke_sys
+        return p, ke, ke_tot, ke_sys
 
-    def save_quantities(self) -> None:
+    def save(self) -> None:
         """Pickle a snapshot of an `Orbiter` object's attributes."""
-        filename = f"{self.name}.pkl"
+        filename = "orbital_data.pkl"
         outpath = self.outfolder / filename
         with outpath.open("wb") as outfile:
             pickle.dump(self.__dict__, outfile, protocol=pickle.HIGHEST_PROTOCOL)
 
-    def load_quantities(self, inpath: Path = None) -> None:
+    def load(self, inpath: Path) -> None:
         """Load `Orbiter` attributes from a pickled snapshot (i.e. PKL file).
 
         Args:
-            inpath (Path, optional): Path to the PKL file. Defaults to None, which then
-                reverts to the name of the system with a .pkl extension.
+            inpath (Path, optional): Path to the PKL file.
         """
-        if inpath is None:
-            filename = f"{self.name}.pkl"
-            inpath = self.outfolder / filename
         with inpath.open("rb") as infile:
             attributes = pickle.load(infile)
         for k, v in attributes.items():

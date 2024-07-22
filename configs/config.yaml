@@ -3,10 +3,11 @@ run_simulation:
   save_data: true
 load_simulation:
   enabled: false
-  inpath: "runs/our_solar_system/2_bodies/euler_0t0_10tf_2dt"
+  inpath: "runs/our_solar_system/3_bodies/euler_0t0_10tf_2dt/solved.pkl"
 make_plots: true
 
 N: 3
+mf: 1
 ic: "our_solar_system"
 t0: 0 # Start time in years.
 tf: 10 # End time in years.
@@ -22,22 +23,27 @@ method:
   pefrl: false
 plots:
   make_all: false
+  total_system_energy: true
+  kinetic_energy: true
+  potential_energy: true
   trajectories:
     3d: true
-    x: false
-    y: false
-    z: false
+    x: true
+    y: true
+    z: true
   phase_space:
     momentum:
-      x: false
-      y: false
-      z: false
+      x: true
+      y: true
+      z: true
     kinetic_energy:
-      system: false
-      each: false
-      x: false
-      y: false
-      z: false
+      x: true
+      y: true
+      z: true
+    potential_energy:
+      x: true
+      y: true
+      z: true
 colors:
   red: "#ff0000"
   grey: "#8c8c94"
