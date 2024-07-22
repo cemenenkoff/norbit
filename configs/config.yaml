@@ -1,9 +1,16 @@
-N: 4
+run_simulation:
+  enabled: true
+  save_data: true
+load_simulation:
+  enabled: false
+  inpath: "runs/our_solar_system/2_bodies/euler_0t0_10tf_2dt"
+make_plots: true
+
+N: 3
 ic: "our_solar_system"
 t0: 0 # Start time in years.
-tf: 20 # End time in years.
+tf: 10 # End time in years.
 dt: 2 # Step time in hours.
-G: 6.67e-11 # Universal gravitational constant in units of m^3/kg*s^2.
 method:
   euler: true
   ec: false
@@ -13,10 +20,10 @@ method:
   pv: false
   vefrl: false
   pefrl: false
-figs:
-  gen_all: false
+plots:
+  make_all: false
   trajectories:
-    3d: false
+    3d: true
     x: false
     y: false
     z: false
@@ -55,7 +62,6 @@ ics:
     - 8.681e+25 # Uranus
     - 1.024e+26 # Neptune
     - 1.309e+22 # Pluto
-
     r0:
     - [1.0e+11, 3.0e+11, 2.0e+11] # Sun
     - [6.0e+11, -5.0e+11, 4.0e+11] # Mercury

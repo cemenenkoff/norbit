@@ -1,3 +1,5 @@
+import pickle
+from pathlib import Path
 from typing import Any, Dict, Tuple
 
 import numpy as np
@@ -8,11 +10,17 @@ G = 6.67e-11  # Universal gravitational constant in units of m^3/kg*s^2.
 
 
 class Orbiter:
-    """3D N-body simulator.
+    """Explore a 3D N-body system with numerical simulation.
+
+    `Orbiter` uses numerical integration to simulate N mutually-interacting point
+    masses, each one exerting a dynamically changing amount gravitational force on each
+    of the N - 1 others. Mathematics cannot yet analytically solve the N-body problem,
+    so it can realistically only be explored through numerical simulation for
+    reasonably large N.
 
     Attributes:
         method (str): The chosen numerical integration stepping method.
-        N (int): The number of mutually-interacting orbiting bodies under consideration.
+        N (int): The number of mutually-interacting orbiting bodies.
         t0 (float): Start time in seconds.
         tf (float): End time in seconds.
         dt (float): The time step (in seconds) between each recalculation.
@@ -33,6 +41,7 @@ class Orbiter:
         Args:
             config (Dict[str, Any]): Configuration dictionary with simulation settings.
         """
+        self.colors = config["colors"]
         self.method = [k for k, v in config["method"].items() if v][0]
         self.N = config["N"]
         self.t0, self.tf, self.dt, self.num_steps = self.convert_times_get_steps(
@@ -45,6 +54,13 @@ class Orbiter:
         self.m = np.array(config["ics"][self.ic]["m"][: self.N])
         self.r0 = np.array(config["ics"][self.ic]["r0"][: self.N])
         self.v0 = np.array(config["ics"][self.ic]["v0"][: self.N])
+        self.runfolder = (
+            f"{self.method}_{config['t0']}t0_{config['tf']}tf_{config['dt']}dt"
+        )
+        self.outfolder = (
+            Path.cwd() / "runs" / self.name / f"{self.N}_bodies" / self.runfolder
+        )
+        self.outfolder.mkdir(parents=True, exist_ok=True)
         self._a = None
         self._r = None
         self._v = None
@@ -141,8 +157,9 @@ class Orbiter:
         Note that this method updates the `r` and `v` attributes.
 
         Returns:
-            Tuple[np.ndarray, np.ndarray]: The 3D position data over time and the 3D
-                velocity data over time, each as separate `num_steps`xNx3 arrays.
+            Tuple[np.ndarray, np.ndarray]:
+                - 3D position data `r` (`num_steps`xNx3).
+                - 3D velocity data `v` (`num_steps`xNx3).
         """
         # If we print r or v below, we'll see several "layers" of Nx3 matrices. Each
         # layer represents a moment in time (i.e. one time step). Within each Nx3
@@ -258,9 +275,14 @@ class Orbiter:
         Note that `get_orbits` must be called at least once before this method is
         called so that `v` is appropriately calculated (and is not None).
 
+        This method updates the `ke`, `p`, `ke_tot`, and `ke_tot_sys` attributes.
+
         Returns:
-            Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]: The 3D kinetic
-                energy of the system (over time)
+            Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+                - 3D kinetic energy `ke` (`num_steps`xNx3).
+                - 3D momentum `p` (`num_steps`xNx3).
+                - Total kinetic energy of each body `ke_tot` (`num_steps`xNx1).
+                - Total kinetic energy of the system `ke_tot_sys` (`num_steps`x1).
         """
         self.N = len(self.m)
         ke = np.zeros((self.num_steps, self.N, 3))  # 3D kinetic energy for each body.
@@ -279,3 +301,25 @@ class Orbiter:
         self._ke_tot = ke_tot
         self._ke_tot_sys = ke_tot_sys
         return ke, p, ke_tot, ke_tot_sys
+
+    def save_quantities(self) -> None:
+        """Pickle a snapshot of an `Orbiter` object's attributes."""
+        filename = f"{self.name}.pkl"
+        outpath = self.outfolder / filename
+        with outpath.open("wb") as outfile:
+            pickle.dump(self.__dict__, outfile, protocol=pickle.HIGHEST_PROTOCOL)
+
+    def load_quantities(self, inpath: Path = None) -> None:
+        """Load `Orbiter` attributes from a pickled snapshot (i.e. PKL file).
+
+        Args:
+            inpath (Path, optional): Path to the PKL file. Defaults to None, which then
+                reverts to the name of the system with a .pkl extension.
+        """
+        if inpath is None:
+            filename = f"{self.name}.pkl"
+            inpath = self.outfolder / filename
+        with inpath.open("rb") as infile:
+            attributes = pickle.load(infile)
+        for k, v in attributes.items():
+            setattr(self, k, v)
