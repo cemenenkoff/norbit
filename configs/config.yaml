@@ -22,25 +22,25 @@ method:
   vefrl: false
   pefrl: false
 plots:
-  make_all: false
-  total_system_energy: true
-  kinetic_energy: true
-  potential_energy: true
-  trajectories:
+  all: false
+  e_sys: true
+  ke_tot: true
+  pe_tot: true
+  orbits:
     3d: true
     x: true
     y: true
     z: true
   phase_space:
-    momentum:
+    p:
       x: true
       y: true
       z: true
-    kinetic_energy:
+    ke:
       x: true
       y: true
       z: true
-    potential_energy:
+    pe:
       x: true
       y: true
       z: true

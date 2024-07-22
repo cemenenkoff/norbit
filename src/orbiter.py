@@ -53,14 +53,15 @@ class Orbiter:
         Args:
             config (Dict[str, Any]): Configuration dictionary with simulation settings.
         """
-        self.colors = config["colors"]
-        self.method = [k for k, v in config["method"].items() if v][0]
-        self.mf = config["mf"]
         self.N = config["N"]
+        self.mf = config["mf"]  # "My favorite" mass out of the bunch.
         self.t0, self.tf, self.dt, self.num_steps = self.convert_times_get_steps(
             config["t0"], config["tf"], config["dt"]
         )
         self.t = self.dt * np.array(range(self.num_steps))
+        self.method = [k for k, v in config["method"].items() if v][0]
+        self.colors = config["colors"]
+
         self.ic = config["ic"]
         self.name = self.ic
         # Trim the initial conditions arrays to represent N bodies.
@@ -74,6 +75,7 @@ class Orbiter:
             Path.cwd() / "runs" / self.name / f"{self.N}_bodies" / self.runfolder
         )
         self.outfolder.mkdir(parents=True, exist_ok=True)
+        # These are set with `get_orbits`, `get_kinetic_qtys` or `get_potential_qtys`.
         self._a = None
         self._r = None
         self._v = None

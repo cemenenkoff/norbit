@@ -47,64 +47,37 @@ def main(config_path: str) -> None:
         orbital_system.load(inpath)
     if config["make_plots"]:
         plotter = Plotter(orbital_system)
-        if config["plots"]["make_all"] or config["plots"]["trajectories"]["3d"]:
-            plotter.plot_3d_trajectories()
-        if config["plots"]["make_all"] or config["plots"]["trajectories"]["x"]:
-            plotter.plot_3d_trajectories_viewed_from_pos_axis("x")
-        if config["plots"]["make_all"] or config["plots"]["trajectories"]["y"]:
-            plotter.plot_3d_trajectories_viewed_from_pos_axis("y")
-        if config["plots"]["make_all"] or config["plots"]["trajectories"]["z"]:
-            plotter.plot_3d_trajectories_viewed_from_pos_axis("z")
-        if config["plots"]["make_all"] or config["plots"]["total_system_energy"]:
-            plotter.plot_tot_ke_pe_sys_vs_t()
-        if config["plots"]["make_all"] or config["plots"]["kinetic_energy"]:
+        if config["plots"]["all"] or config["plots"]["orbits"]["3d"]:
+            plotter.plot_3d_orbits()
+        if config["plots"]["all"] or config["plots"]["orbits"]["x"]:
+            plotter.plot_3d_orbits_viewed_from_pos_axis("x")
+        if config["plots"]["all"] or config["plots"]["orbits"]["y"]:
+            plotter.plot_3d_orbits_viewed_from_pos_axis("y")
+        if config["plots"]["all"] or config["plots"]["orbits"]["z"]:
+            plotter.plot_3d_orbits_viewed_from_pos_axis("z")
+        if config["plots"]["all"] or config["plots"]["e_sys"]:
+            plotter.plot_e_sys_vs_t()
+        if config["plots"]["all"] or config["plots"]["ke_tot"]:
             plotter.plot_ke_tot_vs_t()
-        if config["plots"]["make_all"] or config["plots"]["potential_energy"]:
+        if config["plots"]["all"] or config["plots"]["pe_tot"]:
             plotter.plot_pe_tot_vs_t()
-        if (
-            config["plots"]["make_all"]
-            or config["plots"]["phase_space"]["momentum"]["x"]
-        ):
+        if config["plots"]["all"] or config["plots"]["phase_space"]["p"]["x"]:
             plotter.plot_phase_space("p", "x")
-        if (
-            config["plots"]["make_all"]
-            or config["plots"]["phase_space"]["momentum"]["y"]
-        ):
+        if config["plots"]["all"] or config["plots"]["phase_space"]["p"]["y"]:
             plotter.plot_phase_space("p", "y")
-        if (
-            config["plots"]["make_all"]
-            or config["plots"]["phase_space"]["momentum"]["z"]
-        ):
+        if config["plots"]["all"] or config["plots"]["phase_space"]["p"]["z"]:
             plotter.plot_phase_space("p", "z")
-        if (
-            config["plots"]["make_all"]
-            or config["plots"]["phase_space"]["potential_energy"]["x"]
-        ):
+        if config["plots"]["all"] or config["plots"]["phase_space"]["pe"]["x"]:
             plotter.plot_phase_space("pe", "x")
-        if (
-            config["plots"]["make_all"]
-            or config["plots"]["phase_space"]["potential_energy"]["y"]
-        ):
+        if config["plots"]["all"] or config["plots"]["phase_space"]["pe"]["y"]:
             plotter.plot_phase_space("pe", "y")
-        if (
-            config["plots"]["make_all"]
-            or config["plots"]["phase_space"]["potential_energy"]["z"]
-        ):
+        if config["plots"]["all"] or config["plots"]["phase_space"]["pe"]["z"]:
             plotter.plot_phase_space("pe", "z")
-        if (
-            config["plots"]["make_all"]
-            or config["plots"]["phase_space"]["kinetic_energy"]["x"]
-        ):
+        if config["plots"]["all"] or config["plots"]["phase_space"]["ke"]["x"]:
             plotter.plot_phase_space("ke", "x")
-        if (
-            config["plots"]["make_all"]
-            or config["plots"]["phase_space"]["kinetic_energy"]["y"]
-        ):
+        if config["plots"]["all"] or config["plots"]["phase_space"]["ke"]["y"]:
             plotter.plot_phase_space("ke", "y")
-        if (
-            config["plots"]["make_all"]
-            or config["plots"]["phase_space"]["kinetic_energy"]["z"]
-        ):
+        if config["plots"]["all"] or config["plots"]["phase_space"]["ke"]["z"]:
             plotter.plot_phase_space("ke", "z")
     print("[END]")
 

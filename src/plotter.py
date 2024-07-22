@@ -75,7 +75,7 @@ class Plotter:
         self.outfolder = solved_orbiter.outfolder
         self.outfolder.mkdir(parents=True, exist_ok=True)
 
-    def plot_3d_trajectories(self) -> None:
+    def plot_3d_orbits(self) -> None:
         """Plot the 3D orbital paths of N mutually-interacting gravitational bodies."""
         fig = plt.figure(facecolor="white")
         ax = fig.add_subplot(1, 1, 1, projection="3d")
@@ -99,11 +99,11 @@ class Plotter:
             )
         ax.axis("equal")
         plt.legend(loc="center left")
-        outfile = "3d_trajectories"
+        outfile = "3d_orbits"
         outpath = self.outfolder / outfile
         plt.savefig(outpath)
 
-    def plot_3d_trajectories_viewed_from_pos_axis(
+    def plot_3d_orbits_viewed_from_pos_axis(
         self, axis: Literal["x", "y", "z"]
     ) -> None:
         """Plot a 2D slice of the 3D orbital paths of the N bodies.
@@ -145,7 +145,7 @@ class Plotter:
             )
         ax.axis("equal")
         ax.legend(loc="lower right")
-        outfile = f"3d_trajectories_viewed_from_pos_{axis}_axis"
+        outfile = f"3d_orbits_viewed_from_pos_{axis}_axis"
         outpath = self.outfolder / outfile
         plt.savefig(outpath)
 
@@ -199,7 +199,7 @@ class Plotter:
         outpath = self.outfolder / outfile
         plt.savefig(outpath)
 
-    def plot_tot_ke_pe_sys_vs_t(self) -> None:
+    def plot_e_sys_vs_t(self) -> None:
         """Plot total kinetic and potential energy of the whole system over time."""
         fig = plt.figure(facecolor="white")
         ax = fig.add_subplot(111)
@@ -226,7 +226,7 @@ class Plotter:
             alpha=self.alpha,
         )
         ax.legend(loc="lower right")
-        outfile = "tot_ke_pe_sys_vs_t"
+        outfile = "e_sys_vs_t"
         outpath = self.outfolder / outfile
         plt.savefig(outpath)
 
