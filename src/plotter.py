@@ -1,13 +1,9 @@
-from pathlib import Path
+from typing import Literal
 
 import matplotlib
 import matplotlib.pyplot as plt
-import numpy as np
 from IPython.display import set_matplotlib_formats
-from mpl_toolkits.mplot3d import Axes3D
 from orbiter import Orbiter
-from typing import Literal
-
 
 set_matplotlib_formats("pdf", "png")
 plt.style.use("classic")  # Use a serif font.
@@ -79,7 +75,7 @@ class Plotter:
         self.outfolder = solved_orbiter.outfolder
         self.outfolder.mkdir(parents=True, exist_ok=True)
 
-    def plot_3d_paths(self) -> None:
+    def plot_3d_trajectories(self) -> None:
         """Plot the 3D orbital paths of N mutually-interacting gravitational bodies."""
         fig = plt.figure(facecolor="white")
         ax = fig.add_subplot(1, 1, 1, projection="3d")
@@ -103,11 +99,13 @@ class Plotter:
             )
         ax.axis("equal")
         plt.legend(loc="center left")
-        outfile = "3d_paths"
+        outfile = "3d_trajectories"
         outpath = self.outfolder / outfile
         plt.savefig(outpath)
 
-    def plot_3d_paths_viewed_from_pos_axis(self, axis: Literal["x", "y", "z"]) -> None:
+    def plot_3d_trajectories_viewed_from_pos_axis(
+        self, axis: Literal["x", "y", "z"]
+    ) -> None:
         """Plot a 2D slice of the 3D orbital paths of the N bodies.
 
         Args:
@@ -147,7 +145,7 @@ class Plotter:
             )
         ax.axis("equal")
         ax.legend(loc="lower right")
-        outfile = f"3d_paths_viewed_from_pos_{axis}_axis"
+        outfile = f"3d_trajectories_viewed_from_pos_{axis}_axis"
         outpath = self.outfolder / outfile
         plt.savefig(outpath)
 
