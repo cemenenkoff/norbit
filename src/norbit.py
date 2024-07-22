@@ -382,11 +382,11 @@ def orbit(N, t0, tf, dt, m, r0, v0, method):
         Us[i] = PE(r[i])
 
     #Lastly, derive kinetic energy and momentum data from the velocity data.
-    Ts = np.zeros((steps,1)) #total kinetic energy of the system
-    T = np.zeros((steps,N,1)) #total kinetic energy data for each body
-    KE = np.zeros((steps,N,3)) #3D kinetic energy data for each body
-    p = np.zeros((steps,N,3)) #3D momentum data for each body
-    v2 = v**2 #Square all velocities for use in the energy calculation.
+    Ts = np.zeros((steps,1)) # Total kinetic energy of the system.
+    T = np.zeros((steps,N,1)) #Total kinetic energy for each body.
+    KE = np.zeros((steps,N,3)) #3D kinetic energy data for each body.
+    p = np.zeros((steps,N,3)) #3D momentum data for each body.
+    v2 = v**2 # Square all velocities for use in the energy calculation.
     for i in range(steps):
         for j in range(N):
             KE[i,j,:] = (m[j]/2)*v2[i,j,:]

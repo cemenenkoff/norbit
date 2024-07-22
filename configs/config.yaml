@@ -1,11 +1,11 @@
-n: 4
+N: 4
 ic: "our_solar_system"
 t0: 0 # Start time in years.
 tf: 20 # End time in years.
 dt: 2 # Step time in hours.
 G: 6.67e-11 # Universal gravitational constant in units of m^3/kg*s^2.
 method:
-  euler: false
+  euler: true
   ec: false
   rk2: false
   rk4: false
@@ -45,39 +45,39 @@ colors:
 ics:
   our_solar_system:
     m:
-    - 1.989e30 # Sun
-    - 3.285e23 # Mercury
-    - 4.867e24 # Venus
-    - 5.972e24 # Earth
-    - 6.417e23 # Mars
-    - 1.898e27 # Jupiter
-    - 5.683e26 # Saturn
-    - 8.681e25 # Uranus
-    - 1.024e26 # Neptune
-    - 1.309e22 # Pluto
+    - 1.989e+30 # Sun
+    - 3.285e+23 # Mercury
+    - 4.867e+24 # Venus
+    - 5.972e+24 # Earth
+    - 6.417e+23 # Mars
+    - 1.898e+27 # Jupiter
+    - 5.683e+26 # Saturn
+    - 8.681e+25 # Uranus
+    - 1.024e+26 # Neptune
+    - 1.309e+22 # Pluto
 
     r0:
-    - [1.0e11, 3.0e11, 2.0e11] # Sun
-    - [6.0e11, -5.0e11, 4.0e11] # Mercury
-    - [7.0e11, 8.0e11, -7.0e11] # Venus
-    - [8.0e11, 6.0e11, -2.0e11] # Earth
-    - [8.8e11, 9.8e11, -6.8e11] # Mars
-    - [9.8e11, 3.8e11, -7.8e11] # Jupiter
-    - [-3.8e11, 1.8e11, 4.8e11] # Saturn
-    - [7.8e11, -2.2e11, 1.8e11] # Uranus
-    - [6.8e11, -4.1e11, 3.8e11] # Neptune
-    - [5.8e11, -9.3e11, 5.8e11] # Pluto
+    - [1.0e+11, 3.0e+11, 2.0e+11] # Sun
+    - [6.0e+11, -5.0e+11, 4.0e+11] # Mercury
+    - [7.0e+11, 8.0e+11, -7.0e+11] # Venus
+    - [8.0e+11, 6.0e+11, -2.0e+11] # Earth
+    - [8.8e+11, 9.8e+11, -6.8e+11] # Mars
+    - [9.8e+11, 3.8e+11, -7.8e+11] # Jupiter
+    - [-3.8e+11, 1.8e+11, 4.8e+11] # Saturn
+    - [7.8e+11, -2.2e+11, 1.8e+11] # Uranus
+    - [6.8e+11, -4.1e+11, 3.8e+11] # Neptune
+    - [5.8e+11, -9.3e+11, 5.8e+11] # Pluto
     v0:
     - [0.0, 0.0, 0.0] # Sun
-    - [7.0e3, 0.5e3, 2.0e3] # Mercury
-    - [-4.0e3, -0.5e3, -3.0e3] # Venus
-    - [7.0e3, 0.5e3, 2.0e3] # Earth
-    - [4.8e3, 1.3e3, 4.8e3] # Mars
-    - [1.8e3, 1.2e3, -5.8e3] # Jupiter
-    - [2.8e3, 11.3e3, 1.4e3] # Saturn
-    - [3.8e3, 10.3e3, 2.4e3] # Uranus
-    - [4.8e3, 9.3e3, -1.4e3] # Neptune
-    - [5.8e3, 0.3e3, -2.4e3] # Pluto
+    - [7.0e+3, 0.5e+3, 2.0e+3] # Mercury
+    - [-4.0e+3, -0.5e+3, -3.0e+3] # Venus
+    - [7.0e+3, 0.5e+3, 2.0e+3] # Earth
+    - [4.8e+3, 1.3e+3, 4.8e+3] # Mars
+    - [1.8e+3, 1.2e+3, -5.8e+3] # Jupiter
+    - [2.8e+3, 11.3e+3, 1.4e+3] # Saturn
+    - [3.8e+3, 10.3e+3, 2.4e+3] # Uranus
+    - [4.8e+3, 9.3e+3, -1.4e+3] # Neptune
+    - [5.8e+3, 0.3e+3, -2.4e+3] # Pluto
 
   # This set of ICs is more like stars orbiting each other. The resulting orbital
   # trajectories are far less stable than those resulting from `our_solar_system`.
@@ -88,35 +88,35 @@ ics:
     - 3e30 # 2
     - 2.5e30 # 3
     r0:
-    - [1.0e11, 3.0e11, 2.0e11] # 0
-    - [6.0e11, -5.0e11, 4.0e11] # 1
-    - [7.0e11, 8.0e11, -7.0e11] # 2
-    - [8.0e11, 6.0e11, -2.0e11] # 3
+    - [1.0e+11, 3.0e+11, 2.0e+11] # 0
+    - [6.0e+11, -5.0e+11, 4.0e+11] # 1
+    - [7.0e+11, 8.0e+11, -7.0e+11] # 2
+    - [8.0e+11, 6.0e+11, -2.0e+11] # 3
     v0:
-    - [-2.0e3, 0.5e3, 5.0e3] # 0
-    - [7.0e3, 0.5e3, 2.0e3] # 1
-    - [-4.0e3, -0.5e3, -3.0e3] # 2
-    - [7.0e3, 0.5e3, 2.0e3] # 3
+    - [-2.0e+3, 0.5e+3, 5.0e+3] # 0
+    - [7.0e+3, 0.5e+3, 2.0e+3] # 1
+    - [-4.0e+3, -0.5e+3, -3.0e+3] # 2
+    - [7.0e+3, 0.5e+3, 2.0e+3] # 3
 
   # This set of ICs provides a test case where there is a central massive body, and
   # then 6 symmetrically-arranged bodies around it, all starting with zero velocity.
   symmetry:
     m:
-    - 2e30 # Center
-    - 3.285e23
-    - 3.285e23
-    - 3.285e23
-    - 3.285e23
-    - 3.285e23
-    - 3.285e23
+    - 2e+30 # Center
+    - 3.285e+23
+    - 3.285e+23
+    - 3.285e+23
+    - 3.285e+23
+    - 3.285e+23
+    - 3.285e+23
     r0:
-    - [0.0e11, 0.0e11, 0.0e11] # Center
-    - [1.0e11, 0.0e11, 0.0e11]
-    - [0.0e11, 1.0e11, 0.0e11]
-    - [0.0e11, 0.0e11, 1.0e11]
-    - [-1.0e11, 0.0e11, 0.0e11]
-    - [0.0e11, -1.0e11, 0.0e11]
-    - [0.0e11, 0.0e11, -1.0e11]
+    - [0.0e+11, 0.0e+11, 0.0e+11] # Center
+    - [1.0e+11, 0.0e+11, 0.0e+11]
+    - [0.0e+11, 1.0e+11, 0.0e+11]
+    - [0.0e+11, 0.0e+11, 1.0e+11]
+    - [-1.0e+11, 0.0e+11, 0.0e+11]
+    - [0.0e+11, -1.0e+11, 0.0e+11]
+    - [0.0e+11, 0.0e+11, -1.0e+11]
     v0:
     - [0.0, 0.0, 0.0]
     - [0.0, 0.0, 0.0]
