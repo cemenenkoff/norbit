@@ -81,44 +81,6 @@ class Plotter:
         self.outfolder = solved_orbiter.outfolder
         self.outfolder.mkdir(parents=True, exist_ok=True)
 
-    def animate_3d_orbits(self):
-        df = pd.DataFrame(
-            {
-                "time": self.t,
-                "x": self.r[: len(self.t), 0, 0],
-                "y": self.r[: len(self.t), 0, 1],
-                "z": self.r[: len(self.t), 0, 2],
-            }
-        )
-        fig = plt.figure()
-        ax = fig.add_subplot(111, projection="3d")
-        title = ax.set_title("3D Test")
-
-        # Initialize scatter plot
-        graph = ax.scatter([], [], [], c="blue", marker="o", s=1)
-
-        def update_graph(num):
-            # Filter the data for the current frame
-            data = df.iloc[num]
-            # Update the scatter plot
-            graph._offsets3d = ([data.x], [data.y], [data.z])
-            # Update the title
-            title.set_text(f"3D Test, time={num}")
-            return graph, title
-
-        # Create animation
-        ani = FuncAnimation(
-            fig, update_graph, frames=len(self.t), interval=40, blit=True
-        )
-
-        # Save the animation
-        outfile = "3d_orbits.gif"
-        outpath = self.outfolder / outfile
-        writer = PillowWriter(fps=20)
-        plt.legend(loc="center left")
-        plt.close(fig)
-        ani.save(outpath, writer=writer)
-
 
 
     def plot_3d_orbits(self) -> None:
@@ -144,7 +106,7 @@ class Plotter:
                 alpha=self.alpha,
             )
         ax.axis("equal")
-        plt.legend(loc="center left")
+        plt.legend(loc="center right", bbox_to_anchor=(0, 0.5))
         outfile = "3d_orbits"
         outpath = self.outfolder / outfile
         plt.savefig(outpath)

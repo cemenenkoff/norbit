@@ -1,6 +1,7 @@
 import re
 from pathlib import Path
 from typing import List, Tuple
+from tqdm import tqdm
 
 import matplotlib as mpl
 import pandas as pd
@@ -60,7 +61,7 @@ def test_animation(show: bool = True) -> None:
 
 
 def update_graph(
-    time_step: int, dfs: List[pd.DataFrame], lines: List[Line2D], title: mpl.text.Text
+    time_step: int, dfs: List[pd.DataFrame], lines: List[Line2D], title: mpl.text.Text, pbar
 ) -> Tuple[mpl.text.Text, plt.Figure]:
     """
     Update the plot for each time step.
@@ -77,6 +78,7 @@ def update_graph(
             columns "t", "x", "y", and "z"), one for each body.
         lines (List[Line2D]): Line objects for each body.
         title (mpl.text.Text): The title for the GIF's current frame.
+        pbar (tqdm): Progress bar object.
 
     Returns:
         List[Line2D]: Updated line objects.
@@ -89,6 +91,7 @@ def update_graph(
     pattern = r"\$\$\d+"
     new_title = re.sub(pattern, replacement, title.get_text())
     title.set_text(new_title)
+    pbar.update(1)
     return lines
 
 
@@ -120,6 +123,8 @@ def animate_3d_orbits(solved_orbiter: Orbiter, show: bool = False) -> None:
     title = ax.set_title(title_txt)
 
     lines = []
+    labels = []
+    handles = []
     colors = list(solved_orbiter.colors.values())
     for i, df in enumerate(dfs):
         label_txt = r"$m_" + str(i) + "$"
@@ -127,29 +132,37 @@ def animate_3d_orbits(solved_orbiter: Orbiter, show: bool = False) -> None:
             df.x,
             df.y,
             df.z,
-            linestyle="-",
+            linestyle="",
             marker="o",
             label=label_txt,
             color=colors[i],
         )
         lines.append(line)
-    ax.legend(loc="center right", bbox_to_anchor=(0, 0.5))
-
-    # Now that the figure is complete, we animate it.
-    ani = mpl.animation.FuncAnimation(
-        fig,
-        update_graph,
-        fargs=(dfs, lines, title),
-        frames=r.shape[0],
-        interval=40,
-        blit=True,  # Set to True if update_graph is designed to return only the updated artists.
+        labels.append(label_txt)
+        handles.append(
+            Line2D([], [], marker="", markersize=10, linestyle="-", color=colors[i])
+        )
+    # ax.legend(loc="center right", handles=handles, bbox_to_anchor=(0, 0.5))
+    ax.legend(
+        handles=handles, labels=labels, loc="center right", bbox_to_anchor=(0, 0.5)
     )
 
-    outfile = "3d_orbits.gif"
-    outpath = solved_orbiter.outfolder / outfile
-    ani.save(outpath, writer="pillow", fps=25)
-    if show:
-        plt.show()
+    # Now that the figure has all lines drawn across it, animation is next.
+    with tqdm(total=r.shape[0]) as pbar:
+        ani = mpl.animation.FuncAnimation(
+            fig,
+            update_graph,
+            fargs=(dfs, lines, title, pbar),
+            frames=r.shape[0],
+            interval=40,
+            blit=True,  # Set to True if update_graph is designed to return only the updated artists.
+        )
+
+        outfile = "3d_orbits.gif"
+        outpath = solved_orbiter.outfolder / outfile
+        ani.save(outpath, writer="pillow", fps=25)
+        if show:
+            plt.show()
 
 
 # def animate_3d_orbits(solved_orbiter: Orbiter, show: bool = False) -> None:

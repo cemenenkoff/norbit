@@ -10,7 +10,7 @@ N: 10
 mf: 1
 ic: "our_solar_system"
 t0: 0 # Start time in years.
-tf: 10 # End time in years.
+tf: 50 # End time in years.
 dt: 500 # Step time in hours.
 method:
   euler: true

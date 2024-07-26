@@ -1,10 +1,18 @@
 # norbit
 Explore gravitational N-body simulations.
 
-# Background
-In the final quarter of my physics degree, for a computational physics class project, we had the opportunity to select a physical process to simulate using a computer. I chose to simulate the N-body problem in Python, and this repository was born.
+<p align="center">
+  <img src="img/gifs/3d_orbits.gif", width="400"/>
+</p>
 
-# Config Attributes:
+[TOC]
+
+# 1. Introduction
+The N-body problem involves predicting the individual motions of a group of celestial objects interacting with each other gravitationally. Given the initial positions, velocities, and masses of these objects, the challenge is to solve their equations of motion to understand their future positions and velocities over time.
+
+Solving the N-body problem is notoriously difficult because the gravitational interactions between each pair of objects create a highly complex, non-linear system of differential equations that cannot be solved analytically for $N>2$. Additionally, the problem's sensitivity to initial conditions, known as chaos, makes long-term predictions highly sensitive to even the smallest perturbations.
+
+# 2. Config Attributes:
     method (str): The chosen numerical integration stepping method.
     N (int): The number of mutually-interacting orbiting bodies under consideration.
     t0 (float): Start time in seconds.
