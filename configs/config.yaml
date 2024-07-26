@@ -1,8 +1,8 @@
 run_simulation:
-  enabled: false
+  enabled: true
   save_data: false
 load_simulation:
-  enabled: true
+  enabled: false
   inpath: "runs/our_solar_system/2_bodies/euler_0t0_10tf_2000dt/orbital_data.pkl"
 make_plots: true
 
@@ -11,7 +11,7 @@ mf: 1
 ic: "our_solar_system"
 t0: 0 # Start time in years.
 tf: 10 # End time in years.
-dt: 2000 # Step time in hours.
+dt: 2002 # Step time in hours.
 method:
   euler: true
   ec: false

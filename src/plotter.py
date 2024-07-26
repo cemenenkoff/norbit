@@ -120,51 +120,6 @@ class Plotter:
         ani.save(outpath, writer=writer)
 
 
-    # def animate_3d_orbits(self) -> None:
-    #     fig = plt.figure(facecolor="white")
-    #     ax = fig.add_subplot(1, 1, 1, projection="3d")
-    #     plt.title(
-    #         r"$\mathrm{%s}\ $" % str(self.N)
-    #         + r"$\mathrm{Orbiting\ Bodies,\ }$"
-    #         + r"$\mathrm{Position\ vs.\ Time}$",
-    #         y=1.05,
-    #     )
-    #     ax.set_xlabel(r"$\mathrm{x-Position\ (m)}$", labelpad=10)
-    #     ax.set_ylabel(r"$\mathrm{y-Position\ (m)\quad\text{\ \ \ }}$", labelpad=10)
-    #     ax.set_zlabel(r"$\mathrm{z-Position\ (m)\quad\text{\ \ \ }}$", labelpad=10)
-
-    #     lines = [
-    #         ax.plot(
-    #             [],
-    #             [],
-    #             [],
-    #             color=self.colors[list(self.colors.keys())[i]],
-    #             label=self.labels[i],
-    #             alpha=self.alpha,
-    #         )[0]
-    #         for i in range(self.N)
-    #     ]
-
-    #     def init():
-    #         for line in lines:
-    #             line.set_data([], [])
-    #             line.set_3d_properties([])
-    #         return lines
-
-    #     def update(frame):
-    #         for i, line in enumerate(lines):
-    #             line.set_data(self.r[:frame, i, 0], self.r[:frame, i, 1])
-    #             line.set_3d_properties(self.r[:frame, i, 2])
-    #         return lines
-
-    #     anim = FuncAnimation(fig, update, frames=len(self.r), init_func=init, blit=True)
-
-    #     outfile = "3d_orbits.gif"
-    #     outpath = self.outfolder / outfile
-    #     writer = PillowWriter(fps=20)
-    #     anim.save(outpath, writer=writer)
-    #     plt.legend(loc="center left")
-    #     plt.show()
 
     def plot_3d_orbits(self) -> None:
         """Plot the 3D orbital paths of N mutually-interacting gravitational bodies."""

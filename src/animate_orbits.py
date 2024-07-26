@@ -5,7 +5,6 @@ import matplotlib as mpl
 import pandas as pd
 from matplotlib import pyplot as plt
 from orbiter import Orbiter
-from simulate_orbits import load_config
 from tqdm import tqdm
 
 
@@ -21,7 +20,7 @@ def test_2_bodies(show: bool = True) -> None:
     inpath = Path(inpath)
     orbital_system = Orbiter(config)
     orbital_system.load(inpath)
-    animate_3d_orbits(orbital_system)
+    animate_3d_orbits(orbital_system, show)
 
 
 def update_graph(
@@ -55,14 +54,14 @@ def update_graph(
     )
 
 
-def animate_3d_orbits(orbital_system: Orbiter, show: bool = False) -> None:
+def animate_3d_orbits(solved_orbiter: Orbiter, show: bool = False) -> None:
     """Animate an orbital system, exporting the results as a GIF.
 
     Args:
-        orbital_system (Orbiter): A fully-solved orbital system.
+        solved_orbiter (Orbiter): A fully-solved orbital system.
         show (bool): Whether to display the GIF after its generation.
     """
-    r = orbital_system.r
+    r = solved_orbiter.r
     r_reshaped = r.transpose(1, 0, 2)  # Reshape the array from (t, N, 3) to (N, t, 3).
     dfs = [
         pd.DataFrame(body, columns=["x", "y", "z"]).rename_axis("t").reset_index()
@@ -83,11 +82,13 @@ def animate_3d_orbits(orbital_system: Orbiter, show: bool = False) -> None:
             blit=False,
         )
     outfile = "3d_orbits.gif"
-    outpath = orbital_system.outfolder / outfile
+    outpath = solved_orbiter.outfolder / outfile
     ani.save(outpath, writer="pillow", fps=25)
     if show:
         plt.show()
 
 
 if __name__ == "__main__":
+    from simulate_orbits import load_config
+
     test_2_bodies(show=False)
