@@ -49,6 +49,7 @@ def main(config_path: str) -> None:
         plotter = Plotter(orbital_system)
         if config["plots"]["all"] or config["plots"]["orbits"]["3d"]:
             plotter.plot_3d_orbits()
+            plotter.animate_3d_orbits()
         if config["plots"]["all"] or config["plots"]["orbits"]["x"]:
             plotter.plot_3d_orbits_viewed_from_pos_axis("x")
         if config["plots"]["all"] or config["plots"]["orbits"]["y"]:

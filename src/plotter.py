@@ -1,8 +1,14 @@
 from typing import Literal
 
 import matplotlib
+import matplotlib.animation
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 from IPython.display import set_matplotlib_formats
+from matplotlib import pyplot as plt
+from matplotlib.animation import FuncAnimation, PillowWriter
+from mpl_toolkits.mplot3d import Axes3D
 from orbiter import Orbiter
 
 set_matplotlib_formats("pdf", "png")
@@ -75,6 +81,91 @@ class Plotter:
         self.outfolder = solved_orbiter.outfolder
         self.outfolder.mkdir(parents=True, exist_ok=True)
 
+    def animate_3d_orbits(self):
+        df = pd.DataFrame(
+            {
+                "time": self.t,
+                "x": self.r[: len(self.t), 0, 0],
+                "y": self.r[: len(self.t), 0, 1],
+                "z": self.r[: len(self.t), 0, 2],
+            }
+        )
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection="3d")
+        title = ax.set_title("3D Test")
+
+        # Initialize scatter plot
+        graph = ax.scatter([], [], [], c="blue", marker="o", s=1)
+
+        def update_graph(num):
+            # Filter the data for the current frame
+            data = df.iloc[num]
+            # Update the scatter plot
+            graph._offsets3d = ([data.x], [data.y], [data.z])
+            # Update the title
+            title.set_text(f"3D Test, time={num}")
+            return graph, title
+
+        # Create animation
+        ani = FuncAnimation(
+            fig, update_graph, frames=len(self.t), interval=40, blit=True
+        )
+
+        # Save the animation
+        outfile = "3d_orbits.gif"
+        outpath = self.outfolder / outfile
+        writer = PillowWriter(fps=20)
+        plt.legend(loc="center left")
+        plt.close(fig)
+        ani.save(outpath, writer=writer)
+
+
+    # def animate_3d_orbits(self) -> None:
+    #     fig = plt.figure(facecolor="white")
+    #     ax = fig.add_subplot(1, 1, 1, projection="3d")
+    #     plt.title(
+    #         r"$\mathrm{%s}\ $" % str(self.N)
+    #         + r"$\mathrm{Orbiting\ Bodies,\ }$"
+    #         + r"$\mathrm{Position\ vs.\ Time}$",
+    #         y=1.05,
+    #     )
+    #     ax.set_xlabel(r"$\mathrm{x-Position\ (m)}$", labelpad=10)
+    #     ax.set_ylabel(r"$\mathrm{y-Position\ (m)\quad\text{\ \ \ }}$", labelpad=10)
+    #     ax.set_zlabel(r"$\mathrm{z-Position\ (m)\quad\text{\ \ \ }}$", labelpad=10)
+
+    #     lines = [
+    #         ax.plot(
+    #             [],
+    #             [],
+    #             [],
+    #             color=self.colors[list(self.colors.keys())[i]],
+    #             label=self.labels[i],
+    #             alpha=self.alpha,
+    #         )[0]
+    #         for i in range(self.N)
+    #     ]
+
+    #     def init():
+    #         for line in lines:
+    #             line.set_data([], [])
+    #             line.set_3d_properties([])
+    #         return lines
+
+    #     def update(frame):
+    #         for i, line in enumerate(lines):
+    #             line.set_data(self.r[:frame, i, 0], self.r[:frame, i, 1])
+    #             line.set_3d_properties(self.r[:frame, i, 2])
+    #         return lines
+
+    #     anim = FuncAnimation(fig, update, frames=len(self.r), init_func=init, blit=True)
+
+    #     outfile = "3d_orbits.gif"
+    #     outpath = self.outfolder / outfile
+    #     writer = PillowWriter(fps=20)
+    #     anim.save(outpath, writer=writer)
+    #     plt.legend(loc="center left")
+    #     plt.show()
+
     def plot_3d_orbits(self) -> None:
         """Plot the 3D orbital paths of N mutually-interacting gravitational bodies."""
         fig = plt.figure(facecolor="white")
@@ -103,9 +194,7 @@ class Plotter:
         outpath = self.outfolder / outfile
         plt.savefig(outpath)
 
-    def plot_3d_orbits_viewed_from_pos_axis(
-        self, axis: Literal["x", "y", "z"]
-    ) -> None:
+    def plot_3d_orbits_viewed_from_pos_axis(self, axis: Literal["x", "y", "z"]) -> None:
         """Plot a 2D slice of the 3D orbital paths of the N bodies.
 
         Args:
@@ -223,6 +312,14 @@ class Plotter:
             self.pe_sys,
             color="red",
             label=r"$U_{\mathrm{tot}}$",
+            alpha=self.alpha,
+        )
+        ax.plot(
+            self.t,
+            self.ke_sys + self.pe_sys,
+            color="grey",
+            linestyle=":",
+            label=r"$T_{\mathrm{tot}}+U_{\mathrm{tot}}$",
             alpha=self.alpha,
         )
         ax.legend(loc="lower right")

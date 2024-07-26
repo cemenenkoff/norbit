@@ -30,21 +30,31 @@ class Orbiter:
         name (str): Alias for `ic`.
         m (np.ndarray): A 1D array of the masses of the bodies under consideration.
         r0 (np.ndarray): An Nx3 array where each row is a body's initial position
-            (x0, y0, z0).
+            (x_0, y_0, z_0).
         v0 (np.ndarray): An Nx3 array where each row is a body's initial velocity
-            (v0, v0, v0).
-        runfolder (str): __description__.
-        outfolder (Path): __description__.
-        _a (np.ndarray): __description__.
-        _r (np.ndarray): __description__.
-        _v (np.ndarray): __description__.
-        _p (np.ndarray): __description__.
-        _pe (np.ndarray): __description__.
-        _pe_tot (np.ndarray): __description__.
-        _pe_sys (np.ndarray): __description__.
-        _ke (np.ndarray): __description__.
-        _ke_tot (np.ndarray): __description__.
-        _ke_sys (np.ndarray): __description__.
+            (v_0, v_0, v_0).
+        runfolder (str): Folder name with stepping method and time settings.
+        outfolder (Path): Directory for generated figures and data.
+        _a (np.ndarray): A `num_steps`xNx3 array where each row is a body's acceleration
+            (a_x, a_y, a_z).
+        _r (np.ndarray): A `num_steps`xNx3 array where each row is a body's position
+            (r_x, r_y, r_z).
+        _v (np.ndarray): A `num_steps`xNx3 array where each row is a body's velocity
+            (v_x, v_y, v_z).
+        _p (np.ndarray): A `num_steps`xNx3 array where each row is a body's momentum
+            (p_x, p_y, p_z).
+        _pe (np.ndarray): A `num_steps`xNx3 array where each row is a body's potential
+            energy (pe_x, pe_y, pe_z).
+        _pe_tot (np.ndarray): A `num_steps`xNx1 array where each row is a body's total
+            potential energy (pe_tot_x, pe_tot_y, pe_tot_z).
+        _pe_sys (np.ndarray): A 1D array of the total potential energy of the entire
+            system across all time steps.
+        _ke (np.ndarray): A `num_steps`xNx3 array where each row is a body's kinetic
+            energy (ke_x, ke_y, ke_z).
+        _ke_tot (np.ndarray): A `num_steps`xNx1 array where each row is a body's total
+            kinetic energy (ke_tot_x, ke_tot_y, ke_tot_z).
+        _ke_sys (np.ndarray): A 1D array of the total kinetic energy of the entire
+            system across all time steps.
     """
 
     def __init__(self, config: Dict[str, Any]) -> None:
@@ -55,7 +65,7 @@ class Orbiter:
         """
         self.N = config["N"]
         self.mf = config["mf"]  # "My favorite" mass out of the bunch.
-        self.t0, self.tf, self.dt, self.num_steps = self.convert_times_get_steps(
+        self.t0, self.tf, self.dt, self.num_steps = self._convert_times_get_steps(
             config["t0"], config["tf"], config["dt"]
         )
         self.t = self.dt * np.array(range(self.num_steps))
@@ -75,7 +85,7 @@ class Orbiter:
             Path.cwd() / "runs" / self.name / f"{self.N}_bodies" / self.runfolder
         )
         self.outfolder.mkdir(parents=True, exist_ok=True)
-        # These are set with `get_orbits`, `get_kinetic_qtys` or `get_potential_qtys`.
+        # These last attributes are set with other methods.
         self._a = None
         self._r = None
         self._v = None
@@ -127,7 +137,7 @@ class Orbiter:
     def ke_sys(self):
         return self._ke_sys
 
-    def convert_times_get_steps(
+    def _convert_times_get_steps(
         self, t0: float, tf: float, dt: float
     ) -> Tuple[float, float, float, int]:
         """Get relevant time values for orbital simulations.

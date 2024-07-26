@@ -1,17 +1,17 @@
 run_simulation:
-  enabled: true
-  save_data: true
-load_simulation:
   enabled: false
-  inpath: "runs/our_solar_system/3_bodies/euler_0t0_10tf_2dt/solved.pkl"
+  save_data: false
+load_simulation:
+  enabled: true
+  inpath: "runs/our_solar_system/2_bodies/euler_0t0_10tf_2000dt/orbital_data.pkl"
 make_plots: true
 
-N: 3
+N: 2
 mf: 1
 ic: "our_solar_system"
 t0: 0 # Start time in years.
 tf: 10 # End time in years.
-dt: 2 # Step time in hours.
+dt: 2000 # Step time in hours.
 method:
   euler: true
   ec: false
@@ -22,7 +22,7 @@ method:
   vefrl: false
   pefrl: false
 plots:
-  all: false
+  all: true
   e_sys: true
   ke_tot: true
   pe_tot: true
