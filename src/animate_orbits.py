@@ -1,11 +1,12 @@
+import re
 from pathlib import Path
 from typing import Tuple
 
 import matplotlib as mpl
+import matplotlib.lines as mlines
 import pandas as pd
 from matplotlib import pyplot as plt
 from orbiter import Orbiter
-from tqdm import tqdm
 
 
 def test_2_bodies(show: bool = True) -> None:
@@ -47,7 +48,11 @@ def update_graph(
     data = df[df["t"] == time_step]
     graph.set_data(data.x, data.y)
     graph.set_3d_properties(data.z)
-    title.set_text(f"3D Orbits (t={time_step})")
+    replacement = f"t={time_step}"
+    pattern = r"t=\d+"
+    new_title = re.sub(pattern, replacement, title.get_text())
+
+    title.set_text(new_title)
     return (
         title,
         graph,
@@ -70,9 +75,36 @@ def animate_3d_orbits(solved_orbiter: Orbiter, show: bool = False) -> None:
 
     fig = plt.figure()
     ax = fig.add_subplot(111, projection="3d")
-    title = ax.set_title("3D Orbits")
-    for df in tqdm(dfs):
-        (graph,) = ax.plot(df.x, df.y, df.z, linestyle="", marker="o")
+    ax.set_xlabel(r"$\mathrm{x-Position\ (m)}$", labelpad=10)
+    ax.set_ylabel(r"$\mathrm{y-Position\ (m)\quad\text{\ \ \ }}$", labelpad=10)
+    ax.set_zlabel(r"$\mathrm{z-Position\ (m)\quad\text{\ \ \ }}$", labelpad=10)
+    title_txt = (
+        r"$\mathrm{%s}\ $" % str(len(dfs))
+        + r"$\mathrm{Orbiting\ Bodies,\ }$"
+        + r"$\mathrm{Position\ vs.\ Time,\ }$"
+        + r"$t=0$"
+    )
+    title = ax.set_title(title_txt)
+    labels = []
+    handles = []
+    colors = list(solved_orbiter.colors.values())
+    for i, df in enumerate(dfs):
+        label_txt = r"$m_" + str(i) + "$"
+        handles.append(
+            mlines.Line2D(
+                [], [], marker="", markersize=10, linestyle="-", color=colors[i]
+            )
+        )
+        (graph,) = ax.plot(
+            df.x,
+            df.y,
+            df.z,
+            linestyle="-",
+            marker="o",
+            label=label_txt,
+            color=colors[i],
+        )
+        labels.append(label_txt)
         ani = mpl.animation.FuncAnimation(
             fig,
             update_graph,
@@ -81,6 +113,11 @@ def animate_3d_orbits(solved_orbiter: Orbiter, show: bool = False) -> None:
             interval=40,
             blit=False,
         )
+
+    ax.legend(
+        handles=handles, labels=labels, loc="center right", bbox_to_anchor=(0, 0.5)
+    )
+
     outfile = "3d_orbits.gif"
     outpath = solved_orbiter.outfolder / outfile
     ani.save(outpath, writer="pillow", fps=25)
