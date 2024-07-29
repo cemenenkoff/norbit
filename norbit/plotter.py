@@ -3,13 +3,9 @@ from typing import Literal
 import matplotlib
 import matplotlib.animation
 import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
 from IPython.display import set_matplotlib_formats
-from matplotlib import pyplot as plt
-from matplotlib.animation import FuncAnimation, PillowWriter
-from mpl_toolkits.mplot3d import Axes3D
-from orbiter import Orbiter
+
+from norbit.orbiter import Orbiter
 
 set_matplotlib_formats("pdf", "png")
 plt.style.use("classic")  # Use a serif font.
@@ -32,25 +28,36 @@ class Plotter:
     """Create plots with a solved (i.e. already-run) `Orbiter` object's data.
 
     Attributes:
-        N
-        t
-        r
-        p
-        ke
-        ke_tot
-        ke_sys
-        pe
-        pe_tot
-        pe_sys
-        colors
-        mf
-        mf_label
-        alpha
-        lo
-        hi
-        labels
-        outfolder
-
+        N (int): The number of mutually-interacting orbiting bodies.
+        t (np.ndarray): 1D array of ascending time values in steps of `dt`.
+        r (np.ndarray): A `num_steps`xNx3 array where each row is a body's position
+            (r_x, r_y, r_z).
+        p (np.ndarray): A `num_steps`xNx3 array where each row is a body's momentum
+            (p_x, p_y, p_z).
+        ke (np.ndarray): A `num_steps`xNx3 array where each row is a body's kinetic
+            energy (ke_x, ke_y, ke_z).
+        ke_tot (np.ndarray): A `num_steps`xNx1 array where each row is a body's total
+            kinetic energy (ke_tot_x, ke_tot_y, ke_tot_z).
+        ke_sys (np.ndarray): A 1D array of the total kinetic energy of the entire
+            system across all time steps.
+        pe (np.ndarray): A `num_steps`xNx3 array where each row is a body's potential
+            energy (pe_x, pe_y, pe_z).
+        pe_tot (np.ndarray): A `num_steps`xNx1 array where each row is a body's total
+            potential energy (pe_tot_x, pe_tot_y, pe_tot_z).
+        pe_sys (np.ndarray): A 1D array of the total potential energy of the entire
+            system across all time steps.
+        colors (Dict[str, str]): Labeled HTML color codes corresponding to each body.
+            Note that the number of colors must be greater than or equal to the number of bodies.
+        mf (int): The chosen body to create phase spots plot for. Think of it as "my
+            favorite" mass out of the bunch.
+        mf_label (str): The associated label for the chosen body.
+        alpha (float): Global transparency value to see where orbits overlap.
+        lo (float): Lower bound for arrays used in phase space plots to ensure the
+            system is in a "settled down" dynamic equilibrium when plotted.
+        hi (float): Upper bound for arrays used in phase space plots to ensure the
+            system is in a "settled down" dynamic equilibrium when plotted.
+        labels (List[str]): Each mass's LaTeX numerical label (e.g. $m_1$).
+        outfolder (Path): The directory where plots will be saved.
     """
 
     def __init__(self, solved_orbiter: Orbiter) -> None:
@@ -72,16 +79,12 @@ class Plotter:
         self.colors = solved_orbiter.colors
         self.mf = 1
         self.mf_label = r"$m_{%s}\ $" % str(1)
-        self.alpha = 0.7  # Global transparency value to see where orbits overlap.
-        # Set low and high bounds for arrays used in the phase space figures to ensure
-        # the system is in a "settled down" dynamic equilibrium.
+        self.alpha = 0.7
         self.lo = int(0.35 * (len(self.t)))
         self.hi = int(0.95 * (len(self.t)))
         self.labels = [r"$m_" + str(i) + "$" for i in range(self.N)]
         self.outfolder = solved_orbiter.outfolder
         self.outfolder.mkdir(parents=True, exist_ok=True)
-
-
 
     def plot_3d_orbits(self) -> None:
         """Plot the 3D orbital paths of N mutually-interacting gravitational bodies."""

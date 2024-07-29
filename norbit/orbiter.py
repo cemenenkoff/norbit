@@ -6,7 +6,7 @@ import numpy as np
 from numpy import linalg as LA
 from tqdm import tqdm
 
-G = 6.67e-11  # Universal gravitational constant in units of m^3/kg*s^2.
+G = 6.67430e-11  # Universal gravitational constant (m^3 kg^-1 s^-2)
 
 
 class Orbiter:
@@ -19,13 +19,19 @@ class Orbiter:
     reasonably large N.
 
     Attributes:
-        method (str): The chosen numerical integration stepping method.
+        load_simulation (bool): Whether to load a solved simulation from a PKL file.
+        inpath (Path): Path to the PKL file of the solved system.
         N (int): The number of mutually-interacting orbiting bodies.
+        mf (int): The chosen body to create phase spots plot for. Think of it as "my
+            favorite" mass out of the bunch.
         t0 (float): Start time in seconds.
         tf (float): End time in seconds.
         dt (float): The time step (in seconds) between each recalculation.
         num_steps (int): The number of time steps of length `dt` to simulate.
         t (np.ndarray): 1D array of ascending time values in steps of `dt`.
+        method (str): The chosen numerical integration stepping method.
+        colors (Dict[str, str]): Labeled HTML color codes corresponding to each body.
+            Note that the number of colors must be greater than or equal to the number of bodies.
         ic (str): The name of the initial condition configuration.
         name (str): Alias for `ic`.
         m (np.ndarray): A 1D array of the masses of the bodies under consideration.
@@ -43,17 +49,17 @@ class Orbiter:
             (v_x, v_y, v_z).
         _p (np.ndarray): A `num_steps`xNx3 array where each row is a body's momentum
             (p_x, p_y, p_z).
-        _pe (np.ndarray): A `num_steps`xNx3 array where each row is a body's potential
-            energy (pe_x, pe_y, pe_z).
-        _pe_tot (np.ndarray): A `num_steps`xNx1 array where each row is a body's total
-            potential energy (pe_tot_x, pe_tot_y, pe_tot_z).
-        _pe_sys (np.ndarray): A 1D array of the total potential energy of the entire
-            system across all time steps.
         _ke (np.ndarray): A `num_steps`xNx3 array where each row is a body's kinetic
             energy (ke_x, ke_y, ke_z).
         _ke_tot (np.ndarray): A `num_steps`xNx1 array where each row is a body's total
             kinetic energy (ke_tot_x, ke_tot_y, ke_tot_z).
         _ke_sys (np.ndarray): A 1D array of the total kinetic energy of the entire
+            system across all time steps.
+        _pe (np.ndarray): A `num_steps`xNx3 array where each row is a body's potential
+            energy (pe_x, pe_y, pe_z).
+        _pe_tot (np.ndarray): A `num_steps`xNx1 array where each row is a body's total
+            potential energy (pe_tot_x, pe_tot_y, pe_tot_z).
+        _pe_sys (np.ndarray): A 1D array of the total potential energy of the entire
             system across all time steps.
     """
 
@@ -63,6 +69,8 @@ class Orbiter:
         Args:
             config (Dict[str, Any]): Configuration dictionary with simulation settings.
         """
+        self.load_simulation = config["load_simulation"]["enabled"]
+        self.inpath = Path(config["load_simulation"]["inpath"])
         self.N = config["N"]
         self.mf = config["mf"]  # "My favorite" mass out of the bunch.
         self.t0, self.tf, self.dt, self.num_steps = self._convert_times_get_steps(
@@ -90,51 +98,63 @@ class Orbiter:
         self._r = None
         self._v = None
         self._p = None
-        self._pe = None
-        self._pe_tot = None
-        self._pe_sys = None
         self._ke = None
         self._ke_tot = None
         self._ke_sys = None
+        self._pe = None
+        self._pe_tot = None
+        self._pe_sys = None
+        if self.load_simulation:
+            self.load()
 
     @property
     def a(self):
+        """Get the acceleration vector."""
         return self._a
 
     @property
     def r(self):
+        """Get the position vector."""
         return self._r
 
     @property
     def v(self):
+        """Get the velocity vector."""
         return self._v
 
     @property
     def p(self):
+        """Get the momentum vector."""
         return self._p
 
     @property
     def pe(self):
+        """Get the potential energy vector."""
         return self._pe
 
     @property
     def pe_tot(self):
+        """Get the total potential energy vector."""
         return self._pe_tot
 
     @property
     def pe_sys(self):
+        """Get the system-wide total potential energy array."""
         return self._pe_sys
 
     @property
     def ke(self):
+        """Get the kinetic energy vector."""
         return self._ke
 
     @property
     def ke_tot(self):
+        """Get the total kinetic energy vector."""
         return self._ke_tot
 
     @property
     def ke_sys(self):
+        """Get the system-wide kinetic energy array."""
         return self._ke_sys
 
     def _convert_times_get_steps(
@@ -363,13 +383,9 @@ class Orbiter:
         with outpath.open("wb") as outfile:
             pickle.dump(self.__dict__, outfile, protocol=pickle.HIGHEST_PROTOCOL)
 
-    def load(self, inpath: Path) -> None:
-        """Load `Orbiter` attributes from a pickled snapshot (i.e. PKL file).
-
-        Args:
-            inpath (Path, optional): Path to the PKL file.
-        """
-        with inpath.open("rb") as infile:
+    def load(self) -> None:
+        """Load `Orbiter` attributes from a pickled snapshot (i.e. PKL file)."""
+        with self.inpath.open("rb") as infile:
             attributes = pickle.load(infile)
         for k, v in attributes.items():
             setattr(self, k, v)

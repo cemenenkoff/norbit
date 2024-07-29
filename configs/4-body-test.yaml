@@ -1,14 +1,14 @@
 run_simulation:
-  enabled: true
-  save_data: true
-load_simulation:
   enabled: false
-  inpath: "runs/our_solar_system/2_bodies/euler_0t0_10tf_2000dt/orbital_data.pkl"
-make_plots: true
+  save_data: false
+load_simulation:
+  enabled: true
+  inpath: "C:/Users/Cemenenkoff/Documents/python-projects/norbit/runs/four_stars/4_bodies/euler_0t0_10tf_500dt/orbital_data.pkl"
+make_plots: false
 
 N: 4
 mf: 1
-ic: "four_stars"
+ic: "our_solar_system"
 t0: 0 # Start time in years.
 tf: 10 # End time in years.
 dt: 500 # Step time in hours.
