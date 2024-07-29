@@ -1,6 +1,6 @@
 # Norbit
 ## Solving the [N-Body Problem](https://en.wikipedia.org/wiki/N-body_problem) with Numerical Simulations
-Explore gravitational $n$-body simulations with Norbit, a numerical solution to the [$n$-body problem](https://en.wikipedia.org/wiki/N-body_problem). Norbit enables you to set up an orbital system with any number of bodies and observe how their orbits evolve over time.
+Explore gravitational N-body simulations with Norbit, a numerical solution to the [N-body problem](https://en.wikipedia.org/wiki/N-body_problem). Norbit enables you to set up an orbital system with any number of bodies and observe how their orbits evolve over time.
 
 <p align="center">
   <img src="images/gifs/3d_orbits.gif", width="800"/>
@@ -9,9 +9,9 @@ Explore gravitational $n$-body simulations with Norbit, a numerical solution to 
 [TOC]
 
 # 1. Introduction
-## 1.1 What is the $n$-body problem?
+## 1.1 What is the N-body problem?
 
-In physics, the $n$-body problem is about predicting the motions of celestial objects interacting via gravity. It’s essential for understanding the orbits of bodies like the Sun, Moon, and planets. In the 20th century, as astronomers discovered more orbiting bodies in the universe, the desire to solve this problem intensified, but a complete analytical solution remains elusive to this day.
+In physics, the N-body problem is about predicting the motions of celestial objects interacting via gravity. It’s essential for understanding the orbits of bodies like the Sun, Moon, and planets. In the 20th century, as astronomers discovered more orbiting bodies in the universe, the desire to solve this problem intensified, but a complete analytical solution remains elusive to this day.
 
 <p align="center">
   <img src="images/gifs/20-3-body-problem-examples-wikipedia.gif", width="400"/>
@@ -21,7 +21,7 @@ In physics, the $n$-body problem is about predicting the motions of celestial ob
 </p>
 
 ## 1.2 What makes it so difficult?
-Solving the $n$-body problem is notoriously difficult because the gravitational interactions between each pair of objects create a highly complex, non-linear system of differential equations that cannot be solved analytically for $N>2$. Additionally, the problem's sensitivity to initial conditions, known as chaos, makes long-term predictions highly sensitive to even the smallest perturbations.
+Solving the N-body problem is notoriously difficult because the gravitational interactions between each pair of objects create a highly complex, non-linear system of differential equations that cannot be solved analytically for $N>2$. Additionally, the problem's sensitivity to initial conditions, known as chaos, makes long-term predictions highly sensitive to even the smallest perturbations.
 
 <p align="center">
   <img src="images/readme/n-body-graph.jpg", width="400"/>
@@ -40,14 +40,18 @@ Then, to make things even *harder*, a truly complete physical solution needs to 
 Simply put, the problem is:
   >**Given the current position, velocity, and time of celestial bodies, calculate their gravitational interactions and predict their future motions.**
 ## 2.2 Strategy
-We must solve Newton's equations of motion for $n$ separate bodies in 3D. Given a set of positions, the equation below shows how to obtain the 3D acceleration experienced by body $i$ in the presence of $j$ other bodies.
+We must solve Newton's equations of motion for N separate bodies in 3D. Given a set of positions, the equation below shows how to obtain the 3D acceleration experienced by body $i$ in the presence of $j$ other bodies.
 
 
-$$\mathbf{a}_{ij}=\sum_{\stackrel{j\neq i}{j=1}}^{N}\frac{Gm_{j}\left(\mathbf{r}_{j}-\mathbf{r}_{i}\right)}{\left\Vert \mathbf{r}_{j}-\mathbf{r}_{i}\right\Vert ^{3}}$$
+<p align="center">
+  <img src="images/readme/acceleration-equation.png", width="400"/>
+</p>
 
 The accelerations are integrated to find velocities, and then the velocities are integrated to find positions.
 
-$$U=-\sum_{1\leq i\leq j\leq n}\frac{Gm_{i}m_{j}}{\left\Vert \mathbf{r}_{j}-\mathbf{r}_{i}\right\Vert }$$
+<p align="center">
+  <img src="images/readme/pe-equation.png", width="400"/>
+</p>
 
 The positions enable the calculation of potential energies while the velocities corresponding to kinetic energies.
 
