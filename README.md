@@ -3,7 +3,7 @@
 Explore gravitational $n$-body simulations with Norbit, a numerical solution to the [$n$-body problem](https://en.wikipedia.org/wiki/N-body_problem). Norbit enables you to set up an orbital system with any number of bodies and observe how their orbits evolve over time.
 
 <p align="center">
-  <img src="images/gifs/3d_orbits.gif", width="400"/>
+  <img src="images/gifs/3d_orbits.gif", width="800"/>
 </p>
 
 <!-- TOC start (generated with https://github.com/derlin/bitdowntoc) -->
