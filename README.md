@@ -47,7 +47,7 @@ In physics, the N-body problem is about predicting the motions of celestial obje
   <img src="images/gifs/20-3-body-problem-examples-wikipedia.gif", width="400"/>
 </p>
 <p>
-    <em>These <a href="https://en.wikipedia.org/wiki/Three-body_problem#/media/File:5_4_800_36_downscaled.gif">twenty beautiful examples of the 3-body problem from Wikipedia</a> are an infinitesimally small subset of the N-body solution space.</em>
+    <em style="font-size: smaller;">These <a href="https://en.wikipedia.org/wiki/Three-body_problem#/media/File:5_4_800_36_downscaled.gif">twenty beautiful examples of the 3-body problem from Wikipedia</a> are an infinitesimally small subset of the N-body solution space.</em>
 </p>
 
 
@@ -59,7 +59,7 @@ Solving the N-body problem is notoriously difficult because the gravitational in
   <img src="images/readme/complete-graph.png", width="400"/>
 </p>
 <p>
-    <em>An N-body system is an example of a <a href="https://en.wikipedia.org/wiki/Complete_graph">complete graph</a>, a network in which every pair of distinct vertices is connected by a unique edge.</em>
+    <em style="font-size: smaller;">An N-body system is an example of a <a href="https://en.wikipedia.org/wiki/Complete_graph">complete graph</a>, a network in which every pair of distinct vertices is connected by a unique edge.</em>
 </p>
 
 <!-- TOC --><a name="121-accounting-for-warped-spacetime"></a>
