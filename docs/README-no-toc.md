@@ -1,6 +1,10 @@
-# Norbit
-## Solving the [N-Body Problem](https://en.wikipedia.org/wiki/N-body_problem) with Numerical Simulations
-Explore gravitational N-body simulations with Norbit, a numerical solution to the [N-body problem](https://en.wikipedia.org/wiki/N-body_problem). Norbit enables you to set up an orbital system with any number of bodies and observe how their orbits evolve over time.
+<p align="center">
+  <img src="images/readme/banner.png", width="800"/>
+</p>
+
+# Solving the [N-Body Problem](https://en.wikipedia.org/wiki/N-body_problem) with Numerical Simulations
+
+Conduct gravitational N-body simulations with Norbit, a numerical solution to the [N-body problem](https://en.wikipedia.org/wiki/N-body_problem). Norbit enables you to set up an orbital system with any number of bodies and observe how the system evolves over time.
 
 <p align="center">
   <img src="images/gifs/3d_orbits.gif", width="800"/>
@@ -9,26 +13,30 @@ Explore gravitational N-body simulations with Norbit, a numerical solution to th
 [TOC]
 
 # 1. Introduction
-## 1.1 What is the N-body problem?
+## 1.1 Background
 
-In physics, the N-body problem is about predicting the motions of celestial objects interacting via gravity. It’s essential for understanding the orbits of bodies like the Sun, Moon, and planets. In the 20th century, as astronomers discovered more orbiting bodies in the universe, the desire to solve this problem intensified, but a complete analytical solution remains elusive to this day.
+In physics, the N-body problem is about predicting the motions of celestial objects interacting via gravity. It's essential for understanding the orbits of bodies like the Sun, Moon, and planets. In the 20th century, as astronomers discovered more orbiting bodies in the universe, the desire to solve this problem intensified, but a complete analytical solution remains elusive to this day.
 
 <p align="center">
   <img src="images/gifs/20-3-body-problem-examples-wikipedia.gif", width="400"/>
 </p>
 <p>
-    <em>These twenty beautiful examples of the 3-body problem from Wikipedia are an infinitesimally small subset of the n-body solution space.</em>
+    <em>These <a href="https://en.wikipedia.org/wiki/Three-body_problem#/media/File:5_4_800_36_downscaled.gif">twenty beautiful examples of the 3-body problem from Wikipedia</a> are an infinitesimally small subset of the N-body solution space.</em>
 </p>
 
-## 1.2 What makes it so difficult?
-Solving the N-body problem is notoriously difficult because the gravitational interactions between each pair of objects create a highly complex, non-linear system of differential equations that cannot be solved analytically for $N>2$. Additionally, the problem's sensitivity to initial conditions, known as chaos, makes long-term predictions highly sensitive to even the smallest perturbations.
+
+## 1.2 High Difficulty
+Solving the N-body problem is notoriously difficult because the gravitational interactions between each pair of objects create a highly complex, non-linear system of differential equations that cannot be solved analytically for $N>2$. Additionally, the problem's sensitivity to initial conditions makes long-term predictions highly sensitive to even the smallest perturbations.
 
 <p align="center">
-  <img src="images/readme/n-body-graph.jpg", width="400"/>
+  <img src="images/readme/complete-graph.png", width="400"/>
+</p>
+<p>
+    <em>An N-body system is an example of a <a href="https://en.wikipedia.org/wiki/Complete_graph">complete graph</a>, a network in which every pair of distinct vertices is connected by a unique edge.</em>
 </p>
 
 ### 1.2.1 Accounting for Warped Spacetime
-Then, to make things even *harder*, a truly complete physical solution needs to include general relativity to account time and space distortions. Despite this, the two-body problem and the three-body problem (with restrictions) have been fully solved. **Norbit's simulations do not account for warped spacetime.**
+Then, to make things even *harder*, a truly complete physical solution needs to include [general relativity](https://en.wikipedia.org/wiki/General_relativity) to account time and space distortions. Despite this, the [two-body problem](https://en.wikipedia.org/wiki/Two-body_problem) and the [three-body problem](https://en.wikipedia.org/wiki/Three-body_problem) (with restrictions) have been fully solved. **Norbit's simulations do not account for warped spacetime.**
 
 # 2. Mathematical Formalism
 
@@ -40,23 +48,22 @@ Then, to make things even *harder*, a truly complete physical solution needs to 
 Simply put, the problem is:
   >**Given the current position, velocity, and time of celestial bodies, calculate their gravitational interactions and predict their future motions.**
 ## 2.2 Strategy
-We must solve Newton's equations of motion for N separate bodies in 3D. Given a set of positions, the equation below shows how to obtain the 3D acceleration experienced by body $i$ in the presence of $j$ other bodies.
+We must solve Newton's [equations of motion](https://en.wikipedia.org/wiki/Equations_of_motion) for N separate bodies in 3D. Given a set of positions, the equation below shows how to obtain the 3D acceleration experienced by body $i$ in the presence of $j$ other bodies.
 
+The accelerations are [numerically integrated](https://en.wikipedia.org/wiki/Numerical_integration) to find velocities, and then the velocities are numerically integrated to find positions.
 
 <p align="center">
   <img src="images/readme/acceleration-equation.png", width="400"/>
 </p>
 
-The accelerations are integrated to find velocities, and then the velocities are integrated to find positions.
+The positions then enable the calculation of potential energies while the velocities corresponding to kinetic energies.
 
 <p align="center">
   <img src="images/readme/pe-equation.png", width="400"/>
 </p>
 
-The positions enable the calculation of potential energies while the velocities corresponding to kinetic energies.
-
-## 2.3 Using Multidimensional Arrays
-Norbit approaches this problem using matrix algebra, enabled by multidimensional arrays, and facilitated by `pandas` and `numpy`. Think of each moment in time as a layer in a large stack. Each moment is a snapshot of six critical numbers associated with each orbiting body, exactly at that moment: $x$-position, $y$-position, $z$-position, $x$-velocity, $y$-velocity, and $z$-velocity.
+## 2.3 Multidimensional Arrays
+Norbit approaches this problem using [matrix](https://en.wikipedia.org/wiki/Matrix_(mathematics)) algebra, enabled by multidimensional arrays, and facilitated by [`pandas`](https://pandas.pydata.org/) and [`numpy`](https://numpy.org/). Think of each moment in time as a layer in a large stack. Each moment is a snapshot of six critical numbers associated with each orbiting body, exactly at that moment: $x$-position, $y$-position, $z$-position, $x$-velocity, $y$-velocity, and $z$-velocity.
 
 <p align="center">
   <img src="images/readme/multidimensional-array.png", width="400"/>
@@ -64,14 +71,14 @@ Norbit approaches this problem using matrix algebra, enabled by multidimensional
 
 ## 2.3 Numerical Implementation
 We need to *step* the simulation through time, and the lower the step size, the more accurate the simulation. Step size is not the only important factor though. Using different stepping *methods* can drastically improve the precision of the orbital trajectory calculations. The methods Norbit employs are listed here in ascending order of precision. Refer to `orbiter.Orbiter` to review the actual algorithms.
-  1. Euler
-  2. Euler-Cromer
-  3. Second-Order Runge-Kutta
-  4. Fourth-Order Runge-Kutta
-  5. Velocity Verlet
-  6. Position Verlet
-  7. Velocity Extended Forest-Ruth-Like
-  8. Position Extended Forest-Ruth-Like
+  1. [Euler](https://en.wikipedia.org/wiki/Euler_method)
+  2. [Euler-Cromer](https://en.wikipedia.org/wiki/Semi-implicit_Euler_method)
+  3. [Second-Order Runge-Kutta](https://math.libretexts.org/Workbench/Numerical_Methods_with_Applications_(Kaw)/8%3A_Ordinary_Differential_Equations/8.03%3A_Runge-Kutta_2nd-Order_Method_for_Solving_Ordinary_Differential_Equations)
+  4. [Fourth-Order Runge-Kutta](https://en.wikipedia.org/wiki/Runge%E2%80%93Kutta_methods)
+  5. [Velocity Verlet](https://en.wikipedia.org/wiki/Verlet_integration)
+  6. [Position Verlet](https://young.physics.ucsc.edu/115/leapfrog.pdf)
+  7. [Velocity Extended Forest-Ruth-Like](https://arxiv.org/pdf/cond-mat/0110585)
+  8. [Position Extended Forest-Ruth-Like](https://en.wikipedia.org/wiki/Symplectic_integrator)
 
 
 
@@ -92,8 +99,9 @@ Calculate (i.e. solve for) 3D orbital trajectories with the `Orbiter` class.
 Plot 3D orbital trajectories with the `Plotter` class, given a solved orbital system.
 
 # 4. 10-Body Investigation
-Here we compare the results of a 25-year simulation and a 500-year simulation of an orbital system similar to our solar system using the Euler method. Because of the method's in-built imprecision, notice how the orbits "smear" over long periods of time, indicating energy loss in the system.
+Here we compare the results of a 25-year simulation and a 500-year simulation of a stable orbital system similar to our solar system. Both sims used the Euler method, and because of the method's in-built imprecision, the orbits "smeared" as time goes on. In a stable system (i.e. one where the total energy is negative), this smearing indicates energy loss in the system over time.
 
+## 4.2 25-Year Euler Simulation
 <p align="center">
   <img src="images/readme/10-orbiting-bodies.png", width="400"/>
 </p>
@@ -102,6 +110,7 @@ Here we compare the results of a 25-year simulation and a 500-year simulation of
   <img src="images/readme/10-orbiting-bodies-tot-sys-pe-ke.png", width="400"/>
 </p>
 
+## 4.3 500-Year Euler Simulation
 <p align="center">
   <img src="images/readme/10-orbiting-bodies-500-yrs.png", width="400"/>
 </p>
@@ -110,8 +119,15 @@ Here we compare the results of a 25-year simulation and a 500-year simulation of
   <img src="images/readme/10-orbiting-bodies-tot-sys-pe-ke-500-yrs.png", width="400"/>
 </p>
 
-## 5. Appendix: Setup for New Developers
-If you are fairly new to Python programming, I'd recommend the setting up this project by following these steps. If you want more in depth knowledge about environment setup, I'd recommend you read [my tutorial on interfacing with the computer like a software developer](https://github.com/cemenenkoff/python-essentials-for-stem-wizards).
+# 5. Future Roadmap
+Here are some ideas for future development.
+- Enable animation of 2D projections.
+- Enable animation of all graphs.
+- Enable multithreading or parallelization to speed up calculations.
+- Create a dynamic connection to the [NASA JPL Horizon System](https://ssd.jpl.nasa.gov/horizons/app.html#/) to get the most up-to-date planetary data of our solar system.
+
+## 6. Appendix: Setup for New Developers
+If you are fairly new to Python programming, I'd recommend setting up this project by following these steps. If you want more in depth knowledge about environment setup, I'd recommend you read [my tutorial on interfacing with the computer like a software developer](https://github.com/cemenenkoff/python-essentials-for-stem-wizards).
 
 1. Download and install [VS Code](https://code.visualstudio.com/download).
 
@@ -135,7 +151,7 @@ If you are fairly new to Python programming, I'd recommend the setting up this p
 
 11. Run `python -m virtualenv <myenvname> --python=python3.12.4` to create a virtual environment that runs on Python 3.12.4.
 
-12. Activate the virtual environment with `source <myenvname>/bin/activate`.
+12. Activate the virtual environment with `source <myenvname>/Scripts/activate`.
 
 13. You should see `(<myenvname>)` two lines above the terminal input line when the environment is active.
 
