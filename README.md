@@ -2,7 +2,7 @@
   <img src="images/readme/banner.png", width="800"/>
 </p>
 
-# Solving the [N-Body Problem](https://en.wikipedia.org/wiki/N-body_problem) with Numerical Simulations
+# Solving the [N-Body Problem](https://en.wikipedia.org/wiki/N-body_problem) with Numerical Simulation
 
 Conduct gravitational N-body simulations with Norbit, a numerical solution to the [N-body problem](https://en.wikipedia.org/wiki/N-body_problem). Norbit enables you to set up an orbital system with any number of bodies and observe how the system evolves over time.
 
@@ -12,7 +12,7 @@ Conduct gravitational N-body simulations with Norbit, a numerical solution to th
 
 <!-- TOC start (generated with https://github.com/derlin/bitdowntoc) -->
 
-- [Solving the N-Body Problem with Numerical Simulations](#solving-the-n-body-problem-with-numerical-simulations)
+- [Solving the N-Body Problem with Numerical Simulation](#solving-the-n-body-problem-with-numerical-simulation)
 - [1. Introduction](#1-introduction)
   - [1.1 Background](#11-background)
   - [1.2 High Difficulty](#12-high-difficulty)
