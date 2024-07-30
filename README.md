@@ -56,7 +56,7 @@ In physics, the N-body problem is about predicting the motions of celestial obje
 Solving the N-body problem is notoriously difficult because the gravitational interactions between each pair of objects create a highly complex, non-linear system of differential equations that cannot be solved analytically for $N>2$. Additionally, the problem's sensitivity to initial conditions makes long-term predictions highly sensitive to even the smallest perturbations.
 
 <p align="center">
-  <img src="images/readme/complete-graph.png", width="400"/>
+  <img src="images/readme/complete-graphs-by-n.svg", width="800"/>
 </p>
 <p>
     <em style="font-size: smaller;">An N-body system is an example of a <a href="https://en.wikipedia.org/wiki/Complete_graph">complete graph</a>, a network in which every pair of distinct vertices is connected by a unique edge.</em>
