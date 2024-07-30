@@ -48,7 +48,11 @@ Then, to make things even *harder*, a truly complete physical solution needs to 
 Simply put, the problem is:
   >**Given the current position, velocity, and time of celestial bodies, calculate their gravitational interactions and predict their future motions.**
 ## 2.2 Strategy
-We must solve Newton's [equations of motion](https://en.wikipedia.org/wiki/Equations_of_motion) for N separate bodies in 3D. Given a set of positions, the equation below shows how to obtain the 3D acceleration experienced by body $i$ in the presence of $j$ other bodies.
+We must solve Newton's [equations of motion](https://en.wikipedia.org/wiki/Equations_of_motion) for N separate bodies in 3D. Given a set of positions, the equation below shows how to obtain the 3D force vector experienced by body $i$ in the presence of $j$ other bodies.
+
+<p align="center">
+  <img src="images/readme/f=ma.png", width="400"/>
+</p>
 
 The accelerations are [numerically integrated](https://en.wikipedia.org/wiki/Numerical_integration) to find velocities, and then the velocities are numerically integrated to find positions.
 
