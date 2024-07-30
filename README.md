@@ -44,7 +44,7 @@ Conduct gravitational N-body simulations with Norbit, a numerical solution to th
 In physics, the N-body problem is about predicting the motions of celestial objects interacting via gravity. It's essential for understanding the orbits of bodies like the Sun, Moon, and planets. In the 20th century, as astronomers discovered more orbiting bodies in the universe, the desire to solve this problem intensified, but a complete analytical solution remains elusive to this day.
 
 <p align="center">
-  <img src="images/gifs/20-3-body-problem-examples-wikipedia.gif", width="400"/>
+  <img src="images/gifs/20-3-body-problem-examples-wikipedia.gif", width="800"/>
 </p>
 <p>
     <em style="font-size: smaller;">These <a href="https://en.wikipedia.org/wiki/Three-body_problem#/media/File:5_4_800_36_downscaled.gif">twenty beautiful examples of the 3-body problem from Wikipedia</a> are an infinitesimally small subset of the N-body solution space.</em>
