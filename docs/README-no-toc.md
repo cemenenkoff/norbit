@@ -44,7 +44,7 @@ Then, to make things even *harder*, a truly complete physical solution needs to 
   <img src="images/readme/problem-statement-diagram.png", width="400"/>
 </p>
 
-## 2.1 Formal Problem Statement
+## 2.1 Problem Statement
 Simply put, the problem is:
   >**Given the current position, velocity, and time of celestial bodies, calculate their gravitational interactions and predict their future motions.**
 ## 2.2 Strategy

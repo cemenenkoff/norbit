@@ -18,7 +18,7 @@ Conduct gravitational N-body simulations with Norbit, a numerical solution to th
   - [1.2 High Difficulty](#12-high-difficulty)
     - [1.2.1 Accounting for Warped Spacetime](#121-accounting-for-warped-spacetime)
 - [2. Mathematical Formalism](#2-mathematical-formalism)
-  - [2.1 Formal Problem Statement](#21-formal-problem-statement)
+  - [2.1 Problem Statement](#21-problem-statement)
   - [2.2 Strategy](#22-strategy)
   - [2.3 Multidimensional Arrays](#23-multidimensional-arrays)
   - [2.3 Numerical Implementation](#23-numerical-implementation)
@@ -73,13 +73,13 @@ Then, to make things even *harder*, a truly complete physical solution needs to 
   <img src="images/readme/problem-statement-diagram.png", width="400"/>
 </p>
 
-<!-- TOC --><a name="21-formal-problem-statement"></a>
-## 2.1 Formal Problem Statement
+<!-- TOC --><a name="21-problem-statement"></a>
+## 2.1 Problem Statement
 Simply put, the problem is:
   >**Given the current position, velocity, and time of celestial bodies, calculate their gravitational interactions and predict their future motions.**
 <!-- TOC --><a name="22-strategy"></a>
 ## 2.2 Strategy
-We must solve Newton's [equations of motion](https://en.wikipedia.org/wiki/Equations_of_motion) for N separate bodies in 3D. Given a set of positions, the equation below, which is a simple restatement of $F=ma$ at its core, shows how to obtain the 3D force vector experienced by body $i$ in the presence of $j$ other bodies.
+We must solve Newton's [equations of motion](https://en.wikipedia.org/wiki/Equations_of_motion) for N separate bodies in 3D. Given a set of positions, the equation below shows how to obtain the 3D force vector experienced by body $i$ in the presence of $j$ other bodies.
 
 <p align="center">
   <img src="images/readme/f=ma.png", width="650"/>
