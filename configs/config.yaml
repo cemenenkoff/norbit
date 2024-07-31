@@ -1,24 +1,24 @@
 run_simulation:
   enabled: true
-  save_data: true
+  save_data: false
 load_simulation:
   enabled: false
-  inpath: "runs/our_solar_system/2_bodies/euler_0t0_10tf_2000dt/orbital_data.pkl"
+  inpath: ""
 make_plots: true
 
-N: 4
+N: 10
 mf: 1
-ic: "four_stars"
+ic: "our_solar_system"
 t0: 0 # Start time in years.
-tf: 10 # End time in years.
+tf: 15 # End time in years.
 dt: 500 # Step time in hours.
 method:
-  euler: true
+  euler: false
   ec: false
   rk2: false
   rk4: false
   vv: false
-  pv: false
+  pv: true
   vefrl: false
   pefrl: false
 plots:
@@ -81,14 +81,14 @@ ics:
     - [5.8e+11, -9.3e+11, 5.8e+11] # Pluto
     v0:
     - [0.0, 0.0, 0.0] # Sun
-    - [7.0e+3, 0.5e+3, 2.0e+3] # Mercury
+    - [10.0e+3, 11.5e+3, 0.1e+3] # Mercury
     - [-4.0e+3, -0.5e+3, -3.0e+3] # Venus
     - [7.0e+3, 0.5e+3, 2.0e+3] # Earth
     - [4.8e+3, 1.3e+3, 4.8e+3] # Mars
     - [1.8e+3, 1.2e+3, -5.8e+3] # Jupiter
     - [2.8e+3, 11.3e+3, 1.4e+3] # Saturn
     - [3.8e+3, 10.3e+3, 2.4e+3] # Uranus
-    - [4.8e+3, 9.3e+3, -1.4e+3] # Neptune
+    - [14.8e+3, 9.3e+3, -1.4e+3] # Neptune
     - [5.8e+3, 0.3e+3, -2.4e+3] # Pluto
 
   # This set of ICs is more like stars orbiting each other. The resulting orbital

@@ -103,7 +103,7 @@ Calculate (i.e. solve for) 3D orbital trajectories with the `Orbiter` class.
 Plot 3D orbital trajectories with the `Plotter` class, given a solved orbital system.
 
 # 4. 10-Body Investigation
-Here we compare the results of a 25-year simulation and a 500-year simulation of a stable orbital system similar to our solar system. Both sims used the Euler method, and because of the method's in-built imprecision, the orbits "smeared" as time goes on. In a stable system (i.e. one where the total energy is negative), this smearing indicates energy loss in the system over time.
+We compare the results of a 25-year and a 500-year simulation of a stable orbital system similar to our solar system. Both simulations used the Euler method, which inherently introduces imprecision. As a result, the orbits "smeared" over time. In a stable system, where the total energy is negative, this smearing indicates energy loss over time.
 
 ## 4.2 25-Year Euler Simulation
 <p align="center">
@@ -129,6 +129,17 @@ Here are some ideas for future development.
 - Enable animation of all graphs.
 - Enable multithreading or parallelization to speed up calculations.
 - Create a dynamic connection to the [NASA JPL Horizon System](https://ssd.jpl.nasa.gov/horizons/app.html#/) to get the most up-to-date planetary data of our solar system.
+  ```python
+  from astroquery.jplhorizons import Horizons
+
+  # Example for Earth.
+  obj = Horizons(id=399, location='@sun', epochs='2024-01-01', id_type='majorbody')
+  vectors = obj.vectors()
+
+  print(vectors['x'], vectors['y'], vectors['z'])  # Position vectors.
+  print(vectors['vx'], vectors['vy'], vectors['vz'])  # Velocity vectors.
+
+  ```
 
 ## 6. Appendix: Setup for New Developers
 If you are fairly new to Python programming, I'd recommend setting up this project by following these steps. If you want more in depth knowledge about environment setup, I'd recommend you read [my tutorial on interfacing with the computer like a software developer](https://github.com/cemenenkoff/python-essentials-for-stem-wizards).

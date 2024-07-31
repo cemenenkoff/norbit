@@ -96,7 +96,7 @@ class Animator:
             r"$\mathrm{%s}\ $" % str(len(dfs))
             + r"$\mathrm{Orbiting\ Bodies,\ }$"
             + r"$\mathrm{Position\ vs.\ Time,\ }$"
-            + r"$0Δt,\ Δt=\mathrm{(%s\ hours)}$" % dt_str
+            + r"$0Δt,\ Δt=\mathrm{(%s\ s)}$" % dt_str
         )
         title = ax.set_title(title_txt)
 

@@ -112,5 +112,18 @@ U=-\sum_{1\leq i\leq j\leq n}\frac{Gm_{i}m_{j}}{\left\Vert \mathbf{r}_{j}-\mathb
 
 \end_layout
 
+\begin_layout Standard
+
+\color gray
+\begin_inset Formula 
+\[
+m_{i}\frac{d^{2}\mathbf{r}_{i}}{dt^{2}}=\sum_{\stackrel{j\neq i}{j=1}}^{N}\frac{Gm_{i}m_{j}\left(\mathbf{r}_{j}-\mathbf{r}_{i}\right)}{\left\Vert \mathbf{r}_{j}-\mathbf{r}_{i}\right\Vert ^{3}}=-\frac{\partial U}{\partial\mathbf{q}_{i}}
+\]
+
+\end_inset
+
+
+\end_layout
+
 \end_body
 \end_document

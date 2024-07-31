@@ -87,6 +87,8 @@
 \begin_body
 
 \begin_layout Standard
+
+\color gray
 \begin_inset Formula 
 \[
 \mathbf{a}_{ij}=\sum_{\stackrel{j\neq i}{j=1}}^{N}\frac{Gm_{j}\left(\mathbf{r}_{j}-\mathbf{r}_{i}\right)}{\left\Vert \mathbf{r}_{j}-\mathbf{r}_{i}\right\Vert ^{3}}
@@ -98,6 +100,8 @@
 \end_layout
 
 \begin_layout Standard
+
+\color gray
 \begin_inset Formula 
 \[
 U=-\sum_{1\leq i\leq j\leq n}\frac{Gm_{i}m_{j}}{\left\Vert \mathbf{r}_{j}-\mathbf{r}_{i}\right\Vert }
